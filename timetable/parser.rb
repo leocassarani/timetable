@@ -1,12 +1,6 @@
+require 'active_support/core_ext'
 require 'hpricot'
 require 'icalendar'
-
-class DateTime
-  # Creates a copy that's a given number of hours in the future
-  def advance_hours(hours)
-    DateTime.civil(year, month, day, hour + hours + min, sec)
-  end
-end
 
 class String
   # True if the string is an integer unsigned number, e.g.
@@ -60,8 +54,12 @@ module Timetable
       # which would normally indicate bad input, e.g. empty string.
       tag = @doc.at("body/font")
       return if tag.nil?
-
       start_text = tag.inner_html
+
+      # Retrieve the number of the first week the calendar spans
+      @week_no = start_text.scan(/Week (\d+) start date/)
+      @week_no = @week_no.flatten.first.to_i
+
       # Retrieve text of the form "Monday 11 October, 2010"
       start_text = start_text.scan(/\w+ \d{1,2} \w+, \d{4}$/).first
       # Parse the resulting text into a DateTime object
@@ -101,6 +99,19 @@ module Timetable
             type, weeks = parse_info(info)
             attendees = parse_attendees(attendees)
             location = parse_location(location)
+
+            weeks.each do |week|
+              event = Event.new
+
+              offset = (week.to_i - @week_no) * 7
+              event.start = @week_start.advance(:days => offset + day, :hours => time)
+              event.end = event.start.advance(:hours => 1)
+
+              event.summary = title + (type.empty? ? '' : " (#{type})")
+              event.description = attendees
+              event.location = location
+              @calendar.add_event(event)
+            end
           end
         end
         
@@ -120,7 +131,7 @@ module Timetable
     def parse_attendees(attendees)
       return '' if attendees.nil? || attendees.empty?
       # Match strings like "ajf (2-6)"
-      attendees = attendees.scan(/(\w+) \([-0-9]{3,5}\)/)
+      attendees = attendees.scan(/([\w-']+) \([-0-9]{3,5}\)/)
       attendees.flatten.join(', ')
     end
 

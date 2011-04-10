@@ -15,6 +15,8 @@ class String
     match(/\A\d+\Z/)
   end
 
+  # Returns either the singular or the plural of a given
+  # word, depending on the value of count
   def self.pluralize(count, singular, plural = nil)
     plural ||= "#{singular.strip}s"
     count == 1 ? singular : plural

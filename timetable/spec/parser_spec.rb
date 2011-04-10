@@ -35,4 +35,33 @@ describe Timetable::Parser do
     cal = @parser.parse
     cal.events.should be_empty
   end
+
+  describe "monkey patches" do
+    describe "String#integer?" do
+        it "should return true on an unsigned positive integer" do
+          "1".integer?.should be_true
+          "123".integer?.should be_true
+        end
+
+        it "should return false on any non-integer input" do
+          "".integer?.should be_false
+          "+123".integer?.should be_false
+          "-123".integer?.should be_false
+          "123b4con".integer?.should be_false
+          "bacon".integer?.should be_false
+        end
+    end
+
+    describe "String.pluralize" do
+      it "should use the singular when count is 1" do
+        String.pluralize(1, "bacon").should == "bacon"
+        String.pluralize(1, "mouse", "mice").should == "mouse"
+      end
+
+      it "should use the plural when count is not 1" do
+        String.pluralize(0, "bacon").should == "bacons"
+        String.pluralize(42, "mouse", "mice").should == "mice"
+      end
+    end
+  end
 end

@@ -104,11 +104,12 @@ module Timetable
             # Create an event for each element in the weeks range
             weeks.each do |week|
               event = Event.new
-
               # Set the event start date by adding the appropriate number
               # of days and hours to @week_start
-              offset = (week.to_i - @week_no) * 7
-              event.start = @week_start.advance(:days => offset + day, :hours => time)
+              event.start = @week_start.advance(
+                :weeks => week.to_i - @week_no,
+                :days => day,
+                :hours => time)
               event.end = event.start.advance(:hours => 1)
 
               event.summary = title + (type.empty? ? '' : " (#{type})")
@@ -178,7 +179,4 @@ module Timetable
       end
     end
   end
-
-  parser = Parser.new(File.read('spec/1_1_1.html'))
-  puts parser.parse.to_ical
 end

@@ -1,9 +1,6 @@
 require 'hpricot'
 require 'icalendar'
 
-# Lessons start at 9am
-MORNINGSTART = 9
-
 class DateTime
   # Creates a copy that's a given number of hours in the future
   def advance_hours(hours)
@@ -12,6 +9,13 @@ class DateTime
 end
 
 module Timetable
+  EVENT_TYPES = {
+    "LEC" => "Lecture",
+    "LAB" => "Lab",
+    "TUT" => "Tutorial",
+    "Wks" => ''
+  }
+
   class Parser
     include Icalendar
     attr_accessor :input
@@ -63,7 +67,7 @@ module Timetable
       day = time = 0
       
       @cells.each do |cell|
-        # Reset day/time counts if this is the horizontal heading ("0900")
+        # Reset day and time if it's a horizontal heading (e.g. "0900")
         if cell =~ /^(\d{2})00$/
           day = 0
           time = $1.to_i
@@ -76,11 +80,21 @@ module Timetable
           # Each event is made up of two lines, so we take them both
           lines.each_slice(2) do |event|
             title, extra = event
-            type, attendees, location = extra.split(" / ")
+            info, attendees, location = extra.split(" / ")
+            puts info
+            type, weeks = parse_info(info)
           end
         end
         
         day += 1
+      end
+    end
+
+    def parse_info(info)
+      if info =~ /(\w+) \((\d{1,2})-(\d{1,2})\)/
+        type = EVENT_TYPES[$1]
+        weeks = $2..$3
+        [type, weeks]
       end
     end
   end

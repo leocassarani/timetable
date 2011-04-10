@@ -8,6 +8,19 @@ class DateTime
   end
 end
 
+class String
+  # True if the string is an integer unsigned number, e.g.
+  # "123" is true, but "-123", "+123" and "bacon" are not
+  def integer?
+    match(/\A\d+\Z/)
+  end
+
+  def self.pluralize(count, singular, plural = nil)
+    plural ||= "#{singular.strip}s"
+    count == 1 ? singular : plural
+  end
+end
+
 module Timetable
   EVENT_TYPES = {
     "LEC" => "Lecture",
@@ -75,14 +88,17 @@ module Timetable
         end
         
         # Only deal with the cell if it's not empty or just a newline
-        unless cell.empty? or cell == "<br />"
+        unless cell.empty? || cell == "<br />"
           lines = cell.split("<br />").delete_if { |s| s.empty? }
           # Each event is made up of two lines, so we take them both
           lines.each_slice(2) do |event|
+            # event[0] is the title, event[1] is event metadata
             title, extra = event
             info, attendees, location = extra.split(" / ")
-            puts info
+
             type, weeks = parse_info(info)
+            attendees = parse_attendees(attendees)
+            location = parse_location(location)
           end
         end
         
@@ -91,11 +107,35 @@ module Timetable
     end
 
     def parse_info(info)
+      # Match strings like "LEC (2-6)"
       if info =~ /(\w+) \((\d{1,2})-(\d{1,2})\)/
         type = EVENT_TYPES[$1]
         weeks = $2..$3
         [type, weeks]
       end
+    end
+
+    def parse_attendees(attendees)
+      return '' if attendees.nil? || attendees.empty?
+      # Match strings like "ajf (2-6)"
+      attendees = attendees.scan(/(\w+) \([-0-9]{3,5}\)/)
+      attendees.flatten.join(', ')
+    end
+
+    def parse_location(location)
+      return '' if location.nil? || location.empty?
+      location = location.split(',')
+
+      # If all the room names are numeric, then we append "Room(s)"
+      # to the beginning of the list
+      if location.all? { |loc| loc.integer? }
+        locstring = String.pluralize(location.count, "Room") + ' '
+      else
+        # Otherwise, add "Room" in front of the numeric room names
+        # and keep the non-numeric ones unaltered
+        location.map! { |loc| loc.integer? ? "Room #{loc}" : loc }
+      end
+      (locstring || '') + location.join(', ')
     end
   end
 end

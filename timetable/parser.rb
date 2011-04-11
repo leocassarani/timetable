@@ -43,7 +43,7 @@ module Timetable
       @calendar
     end
 
-    private
+  private
 
     # Retrieves the string that indicates when the week that the
     # table represents begins, and saves it as a DateTime object
@@ -232,7 +232,4 @@ module Timetable
       end
     end
   end
-
-  parser = Parser.new(File.read('spec/1_1_1.html'))
-  puts parser.parse.to_ical
 end

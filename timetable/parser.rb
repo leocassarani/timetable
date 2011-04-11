@@ -29,14 +29,14 @@ module Timetable
     include Icalendar
     attr_accessor :input
     attr_reader :calendar
-    
+
     def initialize(input = nil)
       @input = input
     end
-    
+
     def parse
       return if input.nil?
-      
+
       find_week_start
       find_cells
       parse_cells
@@ -65,21 +65,22 @@ module Timetable
       # Parse the resulting text into a DateTime object
       @week_start = DateTime.strptime(start_text, "%a %d %b, %Y")
     end
-    
+
     # Retrieves an array of the textual contents of the table cells
     def find_cells
       @doc ||= Hpricot(input)
       @cells = @doc.search("table/tbody/tr/td/font")
       @cells.map! { |node| node.inner_html }
     end
-    
+
     # Iterates over the array of table cells and puts together an
     # Icalendar::Calendar object with all the events it can find
     def parse_cells
       @calendar = Calendar.new
+      @calendar.prodid = "DoC Timetable"
       set_timezones
       day = time = 0
-      
+
       @cells.each do |cell|
         # Reset day and time if it's a horizontal heading (e.g. "0900")
         if cell =~ /^(\d{2})00$/
@@ -87,47 +88,83 @@ module Timetable
           time = $1.to_i
           next
         end
-        
-        # Only deal with the cell if it's not empty or just a newline
+
+        # Move on if the cell is empty or just a newline
         unless cell.empty? || cell == "<br />"
           lines = cell.split("<br />").delete_if { |s| s.empty? }
           # Each event is made up of two lines, so we take them both
           lines.each_slice(2) do |event|
-            # event[0] is the title, event[1] is event metadata
-            title, extra = event
-            info, attendees, location = extra.split(" / ")
-
-            type, weeks = parse_info(info)
-            attendees = parse_attendees(attendees)
-            location = parse_location(location)
-
-            # Create an event for each element in the weeks range
-            weeks.each do |week|
-              event = Event.new
-              # Set the event start date by adding the appropriate number
-              # of days and hours to @week_start
-              event.start = @week_start.advance(
-                :weeks => week.to_i - @week_no,
-                :days => day,
-                :hours => time)
-              event.end = event.start.advance(:hours => 1)
-
-              event.summary = title + (type.empty? ? '' : " (#{type})")
-              event.description = attendees
-              event.location = location
-              @calendar.add_event(event)
-            end
+            create_event(event, day, time)
           end
         end
-        
+
         day += 1
+      end
+    end
+
+    def create_event(event, day, time)
+      # Grab the title from event[0], metadata from event[1]
+      title, extra = event
+      title.gsub!("&amp;", "&")
+      info, attendees, location = extra.split(" / ")
+
+      type, weeks = parse_info(info)
+      attendees = parse_attendees(attendees)
+      location = parse_location(location)
+
+      # Create an event for each element in the weeks range
+      weeks.each do |week|
+        # Set the event start date by adding the appropriate
+        # number of days and hours to @week_start
+        start_date = @week_start.advance(
+          :weeks => week.to_i - @week_no,
+          :days => day,
+          :hours => time
+        )
+
+        event = Event.new
+        event.tzid = "Europe/London"
+        event.start = start_date
+        # For now assume every event ends after an hour
+        event.end = event.start.advance(:hours => 1)
+
+        summary = title
+        summary += " (#{type})" unless type.empty?
+        event.summary = summary
+        event.description = attendees
+        event.location = location
+
+        merged = false
+        # Retrieve the events in the previous timeslot
+        previous = previous_events(event)
+        previous.each do |prev|
+          if prev.summary == event.summary
+            # If the two events are the same (e.g. 2-hour lecture),
+            # merge them into a single event spanning multiple hours.
+            prev.end = event.end
+            # Register the previous event instead
+            register_event(event.start, prev)
+            # We have found an event to merge with
+            merged = true
+            # Garbage-collect the event we no longer need
+            event = nil
+            break
+          end
+        end
+
+        # If we couldn't find a previous event to merge with,
+        # add the event to the calendar the normal way
+        unless merged
+          @calendar.add_event(event)
+          register_event(event.start, event)
+        end
       end
     end
 
     def parse_info(info)
       # Match strings like "LEC (2-6)"
       if info =~ /(\w+) \((\d{1,2})-(\d{1,2})\)/
-        type = EVENT_TYPES[$1]
+        type = EVENT_TYPES[$1] or ''
         weeks = $2..$3
         [type, weeks]
       end
@@ -153,7 +190,23 @@ module Timetable
         # and keep the non-numeric ones unaltered
         location.map! { |loc| loc.integer? ? "Room #{loc}" : loc }
       end
-      (prefix || '') + location.join(', ')
+      (prefix or '') + location.join(', ')
+    end
+
+    # Adds event to the hash table that associates a timeslot with
+    # the events occurring during it
+    def register_event(datetime, event)
+      # Don't need any safety checks as the hash will
+      # return an empty array if no match is found
+      @events[datetime] << event
+    end
+
+    # Finds all events occurring 1 hour before the given event
+    def previous_events(event)
+      # Initialise the hash to use an empty array as default value
+      @events ||= Hash.new { |h, k| h[k] = [] }
+      an_hour_earlier = event.start.advance(:hours => -1)
+      @events[an_hour_earlier]
     end
 
     # Sets the two timezones (DST and standard) for @calendar to use
@@ -179,4 +232,7 @@ module Timetable
       end
     end
   end
+
+  parser = Parser.new(File.read('spec/1_1_1.html'))
+  puts parser.parse.to_ical
 end

@@ -94,7 +94,7 @@ module Timetable
           lines = cell.split("<br />").delete_if { |s| s.empty? }
           # Each event is made up of two lines, so we take them both
           lines.each_slice(2) do |event|
-            create_event(event, day, time)
+            parse_event(event, day, time)
           end
         end
 
@@ -102,7 +102,7 @@ module Timetable
       end
     end
 
-    def create_event(event, day, time)
+    def parse_event(event, day, time)
       # Grab the title from event[0], metadata from event[1]
       title, extra = event
       title.gsub!("&amp;", "&")

@@ -45,6 +45,21 @@ describe Timetable::Parser do
     cal.events.should be_empty
   end
 
+  it "should produce a correct list of rooms for the location field" do
+    @parser.input = read_sample_data("rooms.html")
+    events = @parser.parse.events
+
+    events.sort { |a, b| a.start <=> b.start }
+    locations = events.map { |e| e.location }
+
+    empty, textual, numeric_single, numeric_multiple, mix = locations
+    empty.should be_empty
+    textual.should == "G16 Sir Alexander Flemming Bldg"
+    numeric_single.should == "Room 308"
+    numeric_multiple.should == "Rooms 308, 343, 344"
+    mix.should == "Clore Lecture Theatre, Room 343"
+  end
+
   describe "given a single event" do
     before :each do
       @parser.input = read_sample_data("single.html")

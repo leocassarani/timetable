@@ -67,7 +67,7 @@ module Timetable
       range_start = range_start.to_i
       # The range terminates at range_end, if it exists, or range_start
       # itself, if the calendar only describes a single week of term
-      range_end = range_end.nil? range_start : range_end.to_i
+      range_end = range_end.nil? ? range_start : range_end.to_i
 
       @week_range = range_start..range_end
     end

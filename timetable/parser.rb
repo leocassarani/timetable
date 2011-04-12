@@ -37,6 +37,7 @@ module Timetable
     def parse
       return if input.nil?
 
+      reset_state
       find_week_start
       find_cells
       parse_cells
@@ -44,6 +45,12 @@ module Timetable
     end
 
   private
+
+    def reset_state
+      @doc = nil
+      @uid = 1
+      @events = nil
+    end
 
     # Retrieves the string that indicates when the week that the
     # table represents begins, and saves it as a DateTime object
@@ -123,6 +130,8 @@ module Timetable
         )
 
         event = Event.new
+        event.uid = "DOC-#{@uid}"
+        @uid += 1
         event.tzid = "Europe/London"
         event.start = start_date
         # For now assume every event ends after an hour

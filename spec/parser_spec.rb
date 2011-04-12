@@ -1,7 +1,7 @@
-require '../timetable/parser'
+require 'parser'
 
 def read_sample_data(filename)
-  filepath = File.join(File.dirname(__FILE__), filename)
+  filepath = File.join(File.dirname(__FILE__), "data/#{filename}")
   File.read(filepath)
 end
 

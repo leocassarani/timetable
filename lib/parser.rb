@@ -38,6 +38,7 @@ module Timetable
       return if input.nil?
 
       reset_state
+      find_week_range
       find_week_start
       find_cells
       parse_cells
@@ -52,6 +53,25 @@ module Timetable
       @events = nil
     end
 
+    # Retrieves the range of week numbers that the calendar comprises
+    def find_week_range
+      @doc ||= Hpricot(input)
+      tag = @doc.search("body/h3[2]/font")
+      return if tag.empty?
+      text = tag.inner_html
+
+      # Matches both "(Week 1)" and "(Weeks 2 - 11)"
+      range = text.scan(/\(Week[s]? (\d{1,2})[\s-]*(\d{1,2})?\)/)
+      range_start, range_end = range.flatten
+
+      range_start = range_start.to_i
+      # The range terminates at range_end, if it exists, or range_start
+      # itself, if the calendar only describes a single week of term
+      range_end = range_end.nil? range_start : range_end.to_i
+
+      @week_range = range_start..range_end
+    end
+
     # Retrieves the string that indicates when the week that the
     # table represents begins, and saves it as a DateTime object
     def find_week_start
@@ -63,7 +83,7 @@ module Timetable
       return if tag.nil?
       start_text = tag.inner_html
 
-      # Retrieve the number of the first week the calendar spans
+      # Retrieve the number of the week the calendar starts on
       @week_no = start_text.scan(/Week (\d+) start date/)
       @week_no = @week_no.flatten.first.to_i
 
@@ -121,10 +141,13 @@ module Timetable
 
       # Create an event for each element in the weeks range
       weeks.each do |week|
+        week = week.to_i
+        next unless @week_range.include?(week)
+
         # Set the event start date by adding the appropriate
         # number of days and hours to @week_start
         start_date = @week_start.advance(
-          :weeks => week.to_i - @week_no,
+          :weeks => week - @week_no,
           :days => day,
           :hours => time
         )

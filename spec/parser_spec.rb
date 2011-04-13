@@ -161,6 +161,17 @@ describe Timetable::Parser do
       event.end.should == event.start.advance(:hours => 2)
     end
   end
+
+  context "given a repeating event that exceeds the range of the calendar" do
+    before :each do
+      @parser.input = read_sample_data("out_of_range.html")
+      @result = @parser.parse
+    end
+
+    it "only creates the events that occur on weeks covered by the calendar" do
+      @result.should have(5).events
+    end
+  end
 end
 
 # String monkey patches

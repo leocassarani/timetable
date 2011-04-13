@@ -29,18 +29,23 @@ module Timetable
     attr_accessor :input
     attr_reader :calendar
 
+    # Unique event ID, shared by all Parser objects
+    @@uid = 1
+
     def initialize(input = nil)
       @input = input
     end
 
-    def parse
-      return if input.nil?
+    # The optional parameter is a default output calendar,
+    # see the discussion of #parse_cells for details
+    def parse(cal = nil)
+      return cal if input.nil?
 
       reset_state
       find_week_range
       find_week_start
       find_cells
-      parse_cells
+      parse_cells(cal)
       @calendar
     end
 
@@ -48,7 +53,6 @@ module Timetable
 
     def reset_state
       @doc = nil
-      @uid = 1
       @events = nil
     end
 
@@ -100,11 +104,18 @@ module Timetable
     end
 
     # Iterates over the array of table cells and puts together an
-    # Icalendar::Calendar object with all the events it can find
-    def parse_cells
-      @calendar = Icalendar::Calendar.new
-      @calendar.prodid = "DoC Timetable"
-      set_timezones
+    # Icalendar::Calendar object with all the events it can find.
+    # Accepts as an optional parameter an Icalendar::Calendar
+    # object to be used as the output calendar, useful when wanting
+    # to merge the new events with previously created ones.
+    def parse_cells(cal = nil)
+      if cal.nil?
+        @calendar = Icalendar::Calendar.new
+        @calendar.prodid = "DoC Timetable"
+        set_timezones
+      else
+        @calendar = cal
+      end
       day = time = 0
 
       @cells.each do |cell|
@@ -152,8 +163,8 @@ module Timetable
         )
 
         event = Icalendar::Event.new
-        event.uid = "DOC-#{@uid}"
-        @uid += 1
+        event.uid = "DOC-#{@@uid}"
+        @@uid += 1
         event.tzid = "Europe/London"
         event.start = start_date
         # For now assume every event ends after an hour

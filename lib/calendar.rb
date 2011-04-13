@@ -24,6 +24,8 @@ module Timetable
 
   private
 
+    # Checks that the parameters provided by the user are valid,
+    # i.e. the course name exists and the yoe is within range
     def validate_arguments(course, yoe_text)
       unless COURSES.has_key?(course)
         raise ArgumentError, %Q{Invalid course name "#{course}"}
@@ -52,7 +54,7 @@ module Timetable
 
     def parse
       parser = Parser.new(@data)
-      @cal = parser.parse
+      @cal = parser.parse(@cal)
     end
 
     # Returns the range of valid years of entry

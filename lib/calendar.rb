@@ -1,23 +1,12 @@
 require 'open-uri'
 require_relative 'parser'
+require_relative '../config/courses'
 
 module Timetable
-  COURSES = {
-		'comp'  => 'Computing',
-		'jmc'   => 'JMC',
-		'ee'    => 'Electronic Engineering',
-		'ise'   => 'Information System Engineering',
-		'mci'   => 'MSc Computing for Industry',
-		'mres'  => 'MRes in Advanced Computing',
-		'msa'   => 'MSc Advanced Computing',
-		'msv'   => 'MSc Computing Science',
-		'mss'   => 'MSs Computing Science Specialism'
-  }
-
   class Calendar
     attr_reader :course, :yoe
 
-    HTML_PATH = "http://www.doc.ic.ac.uk/internal/timetables/timetable/autumn/class/1_1_1.htm"
+    HTML_PATH = "http://www.doc.ic.ac.uk/internal/timetables/timetable/:season/class/:id_1_1.htm"
 
     def initialize(course, yoe_text)
       unless COURSES.has_key?(course)
@@ -31,6 +20,7 @@ module Timetable
 
       @course = course
       @yoe = yoe
+      @year = course_year
 
       download
       parse
@@ -43,27 +33,45 @@ module Timetable
 
   private
 
+    def download
+      id = COURSE_IDS[@course][@year]
+      return if id.nil?
+      path = HTML_PATH.gsub(':season', 'autumn').gsub(':id', id.to_s)
+      @html = open(path).read
+    end
+
+    def parse
+      parser = Parser.new(@html)
+      @cal = parser.parse
+    end
+
+    # Returns the range of valid years of entry
     def valid_years
       now = Time.now
 
       # Get the current year in double digits (e.g. 11 for 2011)
       range_end = now.year - 2000
 
-      # Subtract one year if it's not August yet, as draft timetables
-      # are usually published then
-      range_end -= 1 if now.month < 8
+      # Subtract one year if we're in the spring or summer term
+      range_end -= 1 if new_year?
       range_start = range_end - 3
 
       range_start..range_end
     end
 
-    def download
-      @html = open(HTML_PATH).read
+    # Computes the course year given the year of entry, e.g. in autumn
+    # 2010 students who entered the course in 2008 are in year 3
+    def course_year
+      year = Time.now.year - (@yoe + 2000)
+      # Add one if we're still in the autumn term
+      year += 1 unless new_year?
+      year
     end
 
-    def parse
-      parser = Parser.new(@html)
-      @cal = parser.parse
+    # Returns true if it's not August yet, as draft timetables
+    # are usually published in the first weeks of August
+    def new_year?
+      Time.now.month < 8
     end
   end
 end

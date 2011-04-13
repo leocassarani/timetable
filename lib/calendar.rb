@@ -6,22 +6,15 @@ module Timetable
   class Calendar
     attr_reader :course, :yoe
 
-    def initialize(course, yoe_text)
-      unless COURSES.has_key?(course)
-        raise ArgumentError, %Q{Invalid course name "#{course}"}
-      end
-
-      yoe = yoe_text.to_i
-      unless valid_years.include?(yoe)
-        raise ArgumentError, %Q{Invalid year of entry "#{yoe_text}"}
-      end
+    def initialize(course, yoe)
+      validate_arguments(course, yoe)
 
       @course = course
-      @yoe = yoe
-      @year = course_year
+      @yoe = yoe.to_i
+      @course_year = course_year
+      @course_id = course_id
 
-      download
-      parse
+      process_all
     end
 
     def to_ical
@@ -31,10 +24,29 @@ module Timetable
 
   private
 
-    def download
-      id = COURSE_IDS[course][@year]
-      return if id.nil?
-      downloader = Downloader.new(id, 'autumn', 1..1)
+    def validate_arguments(course, yoe_text)
+      unless COURSES.has_key?(course)
+        raise ArgumentError, %Q{Invalid course name "#{course}"}
+      end
+
+      yoe = yoe_text.to_i
+      unless valid_years.include?(yoe)
+        raise ArgumentError, %Q{Invalid year of entry "#{yoe_text}"}
+      end
+    end
+
+    # Downloads and parses all the necessary files
+    def process_all
+      SEASONS.each do |season|
+        WEEK_RANGES.each do |weeks|
+          download(season, weeks)
+          parse
+        end
+      end
+    end
+
+    def download(season, weeks)
+      downloader = Downloader.new(@course_id, season, weeks)
       @data = downloader.download
     end
 
@@ -64,6 +76,12 @@ module Timetable
       # Add one if we're still in the autumn term
       year += 1 unless new_year?
       year
+    end
+
+    def course_id
+      ids = COURSE_IDS[course]
+      return if ids.nil?
+      ids[@course_year]
     end
 
     # Returns true if it's not August yet, as draft timetables

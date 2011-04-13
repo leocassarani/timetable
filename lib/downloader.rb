@@ -31,7 +31,7 @@ module Timetable
     def url
       return if course_id.nil? || season.nil? || weeks.nil?
 
-      result = REMOTE_URL
+      result = REMOTE_URL.clone
       result.gsub!(':season', season.to_s)
       result.gsub!(':course', course_id.to_s)
       result.gsub!(':start', weeks.first.to_s)

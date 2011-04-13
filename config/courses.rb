@@ -51,3 +51,7 @@ COURSE_IDS = {
     1 => 19
   }
 }
+
+SEASONS = ['autumn', 'spring', 'summer']
+
+WEEK_RANGES = [1..1, 2..11]

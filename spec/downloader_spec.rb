@@ -35,4 +35,20 @@ describe Timetable::Downloader do
       data.should match(/<html[^>]*>/)
     end
   end
+
+  context "given two successive inputs" do
+    before :each do
+      @downloader.course_id = 1
+      @downloader.weeks = 1..1
+    end
+
+    it "returns two separate results" do
+      @downloader.season = "autumn"
+      autumn = @downloader.download
+      @downloader.season = "spring"
+      spring = @downloader.download
+
+      autumn.should_not be == spring
+    end
+  end
 end

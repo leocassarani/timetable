@@ -1,12 +1,10 @@
-require 'open-uri'
+require_relative 'downloader'
 require_relative 'parser'
 require_relative '../config/courses'
 
 module Timetable
   class Calendar
     attr_reader :course, :yoe
-
-    HTML_PATH = "http://www.doc.ic.ac.uk/internal/timetables/timetable/:season/class/:id_1_1.htm"
 
     def initialize(course, yoe_text)
       unless COURSES.has_key?(course)
@@ -34,14 +32,14 @@ module Timetable
   private
 
     def download
-      id = COURSE_IDS[@course][@year]
+      id = COURSE_IDS[course][@year]
       return if id.nil?
-      path = HTML_PATH.gsub(':season', 'autumn').gsub(':id', id.to_s)
-      @html = open(path).read
+      downloader = Downloader.new(id, 'autumn', 1..1)
+      @data = downloader.download
     end
 
     def parse
-      parser = Parser.new(@html)
+      parser = Parser.new(@data)
       @cal = parser.parse
     end
 
@@ -62,7 +60,7 @@ module Timetable
     # Computes the course year given the year of entry, e.g. in autumn
     # 2010 students who entered the course in 2008 are in year 3
     def course_year
-      year = Time.now.year - (@yoe + 2000)
+      year = Time.now.year - (yoe + 2000)
       # Add one if we're still in the autumn term
       year += 1 unless new_year?
       year

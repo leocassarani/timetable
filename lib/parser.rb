@@ -26,7 +26,6 @@ module Timetable
   }
 
   class Parser
-    include Icalendar
     attr_accessor :input
     attr_reader :calendar
 
@@ -103,7 +102,7 @@ module Timetable
     # Iterates over the array of table cells and puts together an
     # Icalendar::Calendar object with all the events it can find
     def parse_cells
-      @calendar = Calendar.new
+      @calendar = Icalendar::Calendar.new
       @calendar.prodid = "DoC Timetable"
       set_timezones
       day = time = 0
@@ -152,7 +151,7 @@ module Timetable
           :hours => time
         )
 
-        event = Event.new
+        event = Icalendar::Event.new
         event.uid = "DOC-#{@uid}"
         @uid += 1
         event.tzid = "Europe/London"

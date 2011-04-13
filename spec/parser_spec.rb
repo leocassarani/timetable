@@ -9,17 +9,21 @@ describe Timetable::Parser do
   before :each do
     @parser = Timetable::Parser.new
   end
-  
-  it "should return nil if input not set" do
-    @parser.parse.should == nil
-  end
-  
-  it "should return nil if input set to nil" do
-    @parser.input = nil
-    @parser.parse.should == nil
+
+  context "given no input" do
+    it "returns nil" do
+      @parser.parse.should == nil
+    end
   end
 
-  it "should be able to parse several different files" do
+  context "given nil input" do
+    it "returns nil" do
+      @parser.input = nil
+      @parser.parse.should == nil
+    end
+  end
+
+  it "can parse several different files" do
     @parser.input = read_sample_data("single.html")
     first = @parser.parse
     @parser.input = read_sample_data("single_repeating.html")
@@ -27,50 +31,58 @@ describe Timetable::Parser do
     first.should_not == second
   end
 
-  it "should return a calendar given an input" do
-    @parser.input = read_sample_data("single.html")
-    @parser.parse.should be_a_kind_of Icalendar::Calendar
+  context "given an input" do
+    it "returns a calendar" do
+      @parser.input = read_sample_data("single.html")
+      @parser.parse.should be_a_kind_of Icalendar::Calendar
+    end
   end
 
-  it "should return an empty calendar given an empty string" do
-    @parser.input = ""
-    cal = @parser.parse
-    cal.should be_a_kind_of Icalendar::Calendar
-    cal.events.should be_empty
-  end
-  
-  it "should return an empty calendar given an empty timetable" do
-    @parser.input = read_sample_data("empty.html")
-    cal = @parser.parse
-    cal.events.should be_empty
+  context "given an empty string" do
+    it "returns an empty calendar" do
+      @parser.input = ""
+      cal = @parser.parse
+      cal.should be_a_kind_of Icalendar::Calendar
+      cal.events.should be_empty
+    end
   end
 
-  it "should produce a correct list of rooms for the location field" do
-    @parser.input = read_sample_data("rooms.html")
-    events = @parser.parse.events
-
-    events.sort { |a, b| a.start <=> b.start }
-    locations = events.map { |e| e.location }
-
-    empty, textual, numeric_single, numeric_multiple, mix = locations
-    empty.should be_empty
-    textual.should == "G16 Sir Alexander Flemming Bldg"
-    numeric_single.should == "Room 308"
-    numeric_multiple.should == "Rooms 308, 343, 344"
-    mix.should == "Clore Lecture Theatre, Room 343"
+  context "given an empty timetable" do
+    it "returns an empty calendar" do
+      @parser.input = read_sample_data("empty.html")
+      cal = @parser.parse
+      cal.events.should be_empty
+    end
   end
 
-  describe "given a single event" do
+  context "given all possible inputs for the location field" do
+    it "produces a correct list of rooms" do
+      @parser.input = read_sample_data("rooms.html")
+      events = @parser.parse.events
+
+      events.sort { |a, b| a.start <=> b.start }
+      locations = events.map { |e| e.location }
+
+      empty, textual, numeric_single, numeric_multiple, mix = locations
+      empty.should be_empty
+      textual.should == "G16 Sir Alexander Flemming Bldg"
+      numeric_single.should == "Room 308"
+      numeric_multiple.should == "Rooms 308, 343, 344"
+      mix.should == "Clore Lecture Theatre, Room 343"
+    end
+  end
+
+  context "given a single event" do
     before :each do
       @parser.input = read_sample_data("single.html")
       @result = @parser.parse
     end
 
-    it "should create one event" do
+    it "creates one event only" do
       @result.should have(1).events
     end
 
-    it "should give the correct attributes to the event" do
+    it "gives the correct attributes to the event" do
       event = @result.events.first
       event.summary.should == "Programming (Lecture)"
       event.description.should == "ajf"
@@ -80,17 +92,17 @@ describe Timetable::Parser do
     end
   end
 
-  describe "given a single repeating event" do
+  context "given a single event that occurs five times" do
     before :each do
       @parser.input = read_sample_data("single_repeating.html")
       @result = @parser.parse
     end
 
-    it "should create five events" do
+    it "creates five distinct events" do
       @result.should have(5).events
     end
 
-    it "should create events with identical attributes" do
+    it "creates events with identical attributes" do
       events = @result.events
 
       first = events.shift
@@ -107,7 +119,7 @@ describe Timetable::Parser do
       end
     end
 
-    it "should create events that are one week apart" do
+    it "creates events that are one week apart" do
       events = @result.events
       first = events.shift
       events.inject(first.start) do |date, event|
@@ -117,34 +129,34 @@ describe Timetable::Parser do
     end
   end
 
-  describe "given multiple events in the same timeslot" do
+  context "given two events in the same timeslot" do
     before :each do
       @parser.input = read_sample_data("multiline.html")
       @result = @parser.parse
     end
 
-    it "should create two events" do
+    it "creates two events" do
       @result.should have(2).events
     end
 
-    it "should create two events one week apart" do
+    it "creates the events one week apart" do
       events = @result.events
       first, second = events.sort { |a, b| a.start <=> b.start }
       second.start.should == first.start.advance(:weeks => 1)
     end
   end
 
-  describe "given an event spanning multiple timeslots" do
+  context "given an event spanning two consecutive timeslots" do
     before :each do
       @parser.input = read_sample_data("multislot.html")
       @result = @parser.parse
     end
 
-    it "should only create one event" do
+    it "creates one event only" do
       @result.should have(1).events
     end
 
-    it "should create a two-hour event" do
+    it "creates a two-hour event" do
       event = @result.events.first
       event.end.should == event.start.advance(:hours => 2)
     end
@@ -153,30 +165,38 @@ end
 
 # String monkey patches
 describe String do
-  describe "String#integer?" do
-      it "should return true on an unsigned positive integer" do
+  describe "#integer?" do
+    context "given an unsigned positive integer" do
+      it "returns true" do
         "1".integer?.should be_true
         "123".integer?.should be_true
       end
+    end
 
-      it "should return false on any non-integer input" do
+    context "given any non-integer input" do
+      it "returns false" do
         "".integer?.should be_false
         "+123".integer?.should be_false
         "-123".integer?.should be_false
         "123b4con".integer?.should be_false
         "bacon".integer?.should be_false
       end
+    end
   end
 
-  describe "String.pluralize" do
-    it "should use the singular when count is 1" do
-      String.pluralize(1, "bacon").should == "bacon"
-      String.pluralize(1, "mouse", "mice").should == "mouse"
+  describe ".pluralize" do
+    context "given count of 1" do
+      it "uses the singular" do
+        String.pluralize(1, "bacon").should == "bacon"
+        String.pluralize(1, "mouse", "mice").should == "mouse"
+      end
     end
 
-    it "should use the plural when count is not 1" do
-      String.pluralize(0, "bacon").should == "bacons"
-      String.pluralize(42, "mouse", "mice").should == "mice"
+    context "given count different from 1" do
+      it "uses the plural" do
+        String.pluralize(0, "bacon").should == "bacons"
+        String.pluralize(42, "mouse", "mice").should == "mice"
+      end
     end
   end
 end

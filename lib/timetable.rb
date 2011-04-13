@@ -1,5 +1,5 @@
 require 'sinatra'
-require File.join(File.dirname(__FILE__), 'calendar')
+require_relative 'calendar'
 
 module Timetable
   get '/' do

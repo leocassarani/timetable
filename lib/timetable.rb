@@ -16,6 +16,7 @@ module Timetable
       rescue ArgumentError => e
         return e.message
       end
+      headers "Content-Type" => "text/plain"
       calendar.to_ical
     end
   end

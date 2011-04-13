@@ -1,3 +1,6 @@
+require 'open-uri'
+require_relative 'parser'
+
 module Timetable
   COURSES = {
 		'comp'  => 'Computing',
@@ -14,23 +17,28 @@ module Timetable
   class Calendar
     attr_reader :course, :yoe
 
+    HTML_PATH = "http://www.doc.ic.ac.uk/internal/timetables/timetable/autumn/class/1_1_1.htm"
+
     def initialize(course, yoe_text)
       unless COURSES.has_key?(course)
         raise ArgumentError, %Q{Invalid course name "#{course}"}
       end
 
       yoe = yoe_text.to_i
-
       unless valid_years.include?(yoe)
         raise ArgumentError, %Q{Invalid year of entry "#{yoe_text}"}
       end
 
       @course = course
       @yoe = yoe
+
+      download
+      parse
     end
 
     def to_ical
-      return "Not implemented yet" if @cal.nil?
+      return "An error has occurred" if @cal.nil?
+      @cal.to_ical
     end
 
   private
@@ -47,6 +55,15 @@ module Timetable
       range_start = range_end - 3
 
       range_start..range_end
+    end
+
+    def download
+      @html = open(HTML_PATH).read
+    end
+
+    def parse
+      parser = Parser.new(@html)
+      @cal = parser.parse
     end
   end
 end

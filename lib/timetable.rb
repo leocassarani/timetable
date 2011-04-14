@@ -3,16 +3,15 @@ require_relative 'calendar'
 
 module Timetable
   class Timetable < Sinatra::Base
-    set :public, 'public'
-
     get '/' do
       "This is the index page"
     end
 
-    get '/:course/:yoe' do
-      pass if params[:course] == "__sinatra__"
+    # Match routes such as /comp/09 or /jmc/10
+    get %r{/([a-z]+)/([\d]{2})/?} do
+      course, yoe = params[:captures]
       begin
-        calendar = Calendar.new(params[:course], params[:yoe])
+        calendar = Calendar.new(course, yoe)
       rescue ArgumentError => e
         return e.message
       end

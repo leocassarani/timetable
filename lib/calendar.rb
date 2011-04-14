@@ -20,8 +20,7 @@ module Timetable
     end
 
     def to_ical
-      return "An error has occurred" if @cal.nil?
-      @cal.to_ical
+      @cal.to_ical unless @cal.nil?
     end
 
   private

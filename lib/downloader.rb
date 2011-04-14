@@ -21,6 +21,7 @@ module Timetable
       begin
         @data = open(url).read
       rescue OpenURI::HTTPError
+        # We ignore HTTP errors, and so will the parser
         return nil
       end
       @data
@@ -28,9 +29,12 @@ module Timetable
 
   private
 
+    # Returns the URL corresponding to the input given
     def url
       return if course_id.nil? || season.nil? || weeks.nil?
 
+      # Somewhat surprisingly, if we don't clone the constant
+      # then the calls to gsub! will actually change its value
       result = REMOTE_URL.clone
       result.gsub!(':season', season.to_s)
       result.gsub!(':course', course_id.to_s)

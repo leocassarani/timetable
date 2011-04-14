@@ -1,12 +1,14 @@
+require 'yaml'
 require_relative 'downloader'
 require_relative 'parser'
-require_relative '../config/courses'
 
 module Timetable
   class Calendar
     attr_reader :course, :yoe
 
     def initialize(course, yoe)
+      @config = YAML.load_file("config/timetable.yml")
+
       validate_arguments(course, yoe)
 
       @course = course
@@ -27,7 +29,7 @@ module Timetable
     # Checks that the parameters provided by the user are valid,
     # i.e. the course name exists and the yoe is within range
     def validate_arguments(course, yoe_text)
-      unless COURSES.has_key?(course)
+      unless @config['courses'].has_key?(course)
         raise ArgumentError, %Q{Invalid course name "#{course}"}
       end
 
@@ -39,8 +41,8 @@ module Timetable
 
     # Downloads and parses all the necessary files
     def process_all
-      SEASONS.each do |season|
-        WEEK_RANGES.each do |weeks|
+      @config['seasons'].each do |season|
+        @config['week_ranges'].each do |weeks|
           download(season, weeks)
           parse
         end
@@ -81,7 +83,7 @@ module Timetable
     end
 
     def course_id
-      ids = COURSE_IDS[course]
+      ids = @config['course_ids'][course]
       return if ids.nil?
       ids[@course_year]
     end

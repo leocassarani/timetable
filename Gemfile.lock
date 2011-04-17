@@ -1,7 +1,9 @@
 GEM
+  remote: http://rubygems.org/
   specs:
     activesupport (3.0.6)
     diff-lcs (1.1.2)
+    haml (3.0.25)
     hpricot (0.8.4)
     i18n (0.5.0)
     icalendar (1.1.6)
@@ -26,10 +28,11 @@ PLATFORMS
 
 DEPENDENCIES
   activesupport
+  haml
   hpricot
   i18n
   icalendar
-  rack
+  rack (~> 1.2.2)
   rspec
   shotgun
-  sinatra
+  sinatra (~> 1.2.2)

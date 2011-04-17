@@ -1,10 +1,14 @@
-require 'sinatra'
-require_relative 'calendar'
+require "bundler/setup"
+require "sinatra"
+require "haml"
+require_relative "calendar"
 
 module Timetable
+  set :haml, :format => :html5
+
   class Timetable < Sinatra::Base
     get '/' do
-      "This is the index page"
+      haml :index
     end
 
     # Match routes such as /comp/09 or /jmc/10

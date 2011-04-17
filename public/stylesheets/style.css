@@ -1,0 +1,110 @@
+/* Needed for Firefox */
+img {
+	border: none;
+}
+
+.center {
+	width: 500px;
+	margin: auto auto 0;
+}
+
+.center img {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.center a:link, a:visited {
+	color: #0000EE;
+}
+
+body {
+	font-family: Helvetica, Arial, Verdana, sans-serif;	
+	text-align: center;
+}
+
+label {
+	font-size: 0.9em;
+}
+
+#modules {
+	margin-top: .8em;
+	text-align: left;
+}
+
+#modules input {
+	margin-top: 5px;
+	margin-bottom: 5px;
+	margin-right: .7em;
+}
+
+.hidden {
+	display: none;
+}
+
+legend {
+	text-align: center;
+}
+
+.form {
+	text-align: center;
+	display: inline-block;
+	width: 100%;
+}
+
+.error {
+	text-align: center;
+	display: block;
+	margin: auto auto 1em;
+	border: 1px dashed red;
+	width: 300px;
+}
+
+.instructions p {
+	padding-left: 15px;
+	padding-right: 15px;
+	text-align: justify;
+	font-size: 0.8em;
+}
+
+.instructions img {
+	display: block;
+	margin: auto auto 0;
+	width: 90%;
+}
+
+.instructions img.tiny {
+	width: auto;
+}
+
+#mail {
+	font-size: 0.8em;
+	color: gray	;
+}
+
+#mail a {
+	color: #3A3A3A;
+}
+
+#mail a:hover {
+	color: gray;
+}
+
+#link {
+	text-align: center;
+}
+
+#ical {
+	float: left;
+	width: 33.3%;
+}
+
+#gcal {
+	float: left;
+	width: 33.3%;
+}
+
+#outlook {
+	float: right;
+	width: 33%;
+}

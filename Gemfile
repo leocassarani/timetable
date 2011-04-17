@@ -1,11 +1,14 @@
-gem 'activesupport', :require => 'active_support/core_ext'
-gem 'hpricot'
-gem 'icalendar'
-gem 'i18n'
-gem 'sinatra'
-gem 'shotgun'
-gem 'rack'
+source :rubygems
+
+gem "activesupport", :require => "active_support/core_ext"
+gem "haml"
+gem "hpricot"
+gem "icalendar"
+gem "i18n"
+gem "sinatra", "~> 1.2.2"
+gem "shotgun"
+gem "rack", "~> 1.2.2"
 
 group :test do
-  gem 'rspec'
+  gem "rspec"
 end

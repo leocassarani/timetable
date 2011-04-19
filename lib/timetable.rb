@@ -1,12 +1,14 @@
 require "bundler/setup"
-require "sinatra"
+require "sinatra/base"
 require "haml"
 require_relative "calendar"
 
 module Timetable
-  set :haml, :format => :html5
-
   class Timetable < Sinatra::Base
+    # Set our parent directory as the root
+    set :root, File.dirname(File.dirname(__FILE__))
+    set :haml, :format => :html5
+
     get '/' do
       haml :index
     end

@@ -4,7 +4,7 @@ require "haml"
 require_relative "calendar"
 
 module Timetable
-  class Timetable < Sinatra::Base
+  class Application < Sinatra::Base
     # Set our parent directory as the root
     set :root, File.dirname(File.dirname(__FILE__))
     set :haml, :format => :html5

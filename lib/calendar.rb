@@ -3,6 +3,17 @@ require_relative 'downloader'
 require_relative 'parser'
 
 module Timetable
+  # Returns true if it's not August yet, as draft timetables
+  # are usually published in the first weeks of August
+  def self.new_year?
+    Time.now.month < 8
+  end
+
+  # Returns the current year, adjusted as per self.new_year?
+  def self.academic_year
+    Time.now.year - (new_year? ? 1 : 0)
+  end
+
   class Calendar
     attr_reader :course, :yoe
 
@@ -63,10 +74,7 @@ module Timetable
       now = Time.now
 
       # Get the current year in double digits (e.g. 11 for 2011)
-      range_end = now.year - 2000
-
-      # Subtract one year if we're in the spring or summer term
-      range_end -= 1 if new_year?
+      range_end = Timetable::academic_year - 2000
       range_start = range_end - 3
 
       range_start..range_end
@@ -75,9 +83,9 @@ module Timetable
     # Computes the course year given the year of entry, e.g. in autumn
     # 2010 students who entered the course in 2008 are in year 3
     def course_year
-      year = Time.now.year - (yoe + 2000)
-      # Add one if we're still in the autumn term
-      year += 1 unless new_year?
+      year = Timetable::academic_year - (yoe + 2000)
+      # Add one as we want to count from 1, not 0
+      year += 1
       year
     end
 
@@ -85,12 +93,6 @@ module Timetable
       ids = @config['course_ids'][course]
       return if ids.nil?
       ids[@course_year]
-    end
-
-    # Returns true if it's not August yet, as draft timetables
-    # are usually published in the first weeks of August
-    def new_year?
-      Time.now.month < 8
     end
   end
 end

@@ -31,7 +31,7 @@ module Timetable
     end
 
     def to_ical
-      @cal.to_ical unless @cal.nil?
+      @cal.to_ical if @cal
     end
 
   private

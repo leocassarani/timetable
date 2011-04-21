@@ -1,4 +1,19 @@
+= render :haml, :javascript
 .center
   %a{ :href => '/' }
     %img{ :src => "/images/calendar.png" }
   %h2 Enter your course and year of entry
+  .form
+    %form{ :action => "/install", :method => "post" }
+      %select#course{ :name => "course"}
+        - @courses.each do |key, name|
+          %option{ :value => key }
+            = name
+      %select#yoe{ :name => "yoe"}
+        - @course_years["comp"].each do |year|
+          %option{ :value => year }
+            = year
+      %input#formsubmit{ :type => "submit", :name => "submit", :value => "Submit" }
+  %p#mail
+    Questions? Comments?
+    %a{ :href => "mailto:leonardo.cassarani09@imperial.ac.uk" } Fire away

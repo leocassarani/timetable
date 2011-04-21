@@ -1,1 +1,53 @@
-Foo
+:javascript
+  window.onload = function() {
+    populateOptions();
+    document.getElementById("formsubmit").onclick = enableDropDown;
+    document.getElementById("course").onchange = populateOptions;
+  }
+
+  function populateOptions() {
+    var year = #{Timetable::academic_year};
+    var courseSelect = document.getElementById("course");
+    var courseID = courseSelect.options[courseSelect.selectedIndex].value;
+
+    courseYears = #{@course_years.to_json};
+    var years = courseYears[courseID];
+    if (years == undefined)
+      years = [1,2,3,4];
+
+    var yoeSelect = document.getElementById("yoe");
+    var currentYoe = yoeSelect.options[yoeSelect.selectedIndex].value;
+    yoeSelect.length = 0;
+    yoeSelect.disabled = (years.length <= 1);
+
+    for (var i = 0; i < years.length; i++) {
+      var k = year - years[i] + 1;
+      k = k.toString();
+      kshort = k.substr(2);
+
+      var description = ordinal(years[i]) + ' year (' + k + ' entry)';
+      var newOption = new Option(description, kshort);
+      if (kshort == currentYoe)
+        newOption.selected = true;
+
+      yoeSelect.options[i] = newOption;
+    }
+  }
+
+  function enableDropDown() {
+    var yoeSelect = document.getElementById("yoe");
+    yoeSelect.disabled = false;
+  }
+
+  function ordinal(num) {
+    switch (num) {
+    case 1:
+      return '1st';
+    case 2:
+      return '2nd';
+    case 3:
+      return '3rd';
+    default:
+      return num.toString() + 'th';
+    }
+  }

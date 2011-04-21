@@ -58,4 +58,11 @@ describe Timetable::Calendar do
       calendar.should raise_error(ArgumentError)
     end
   end
+
+  context "given invalid arguments" do
+    it "raises an ArgumentError" do
+      calendar = lambda { Timetable::Calendar.new("chunky", "bacon") }
+      calendar.should raise_error(ArgumentError)
+    end
+  end
 end

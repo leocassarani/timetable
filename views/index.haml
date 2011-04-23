@@ -12,7 +12,7 @@
       %select#yoe{ :name => "yoe"}
         - @course_years["comp"].each do |year|
           %option{ :value => year }
-            = year
+            #{ordinal(year)} year (#{year_to_yoe(year)} entry)
       %input#formsubmit{ :type => "submit", :name => "submit", :value => "Submit" }
   %p#mail
     Questions? Comments?

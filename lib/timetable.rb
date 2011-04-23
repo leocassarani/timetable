@@ -10,6 +10,23 @@ module Timetable
     set :root, File.dirname(File.dirname(__FILE__))
     set :haml, :format => :html5
 
+    helpers do
+      # Given a number, returns a string with the number followed
+      # by its ordinal suffix. E.g. 1 is "1st". Only works in the
+      # 0-20 range, which is more than enough for what we need
+      def ordinal(num)
+        suffixes = [nil, 'st', 'nd', 'rd', 'th']
+        num.to_s + (suffixes[num] || 'th')
+      end
+
+      # Returns the year of entry corresponding to a given course
+      # year (as a number), so that 1 corresponds to the current
+      # academic year, 2 to last year, etc.
+      def year_to_yoe(year)
+        Timetable::academic_year - year + 1
+      end
+    end
+
     get '/' do
       @courses = config("courses")
       @course_years = course_years

@@ -1,0 +1,66 @@
+.center
+  = render :haml, :header
+  %h2 Your timetable URL is
+  %p#link
+    %a{ :href => @url }= @url
+  = render :haml, :footer
+%hr
+#ical.instructions
+  %h3 Apple iCal
+  %p
+    Click on the link. iCal will launch and ask if you want to subscribe to
+    the calendar.
+  %a{ :href => guide_pic("ical", 1), :rel => "lightbox" }
+    %img{ :src => guide_pic("ical", 1) }
+  %p
+    Click "subscribe" and you'll be presented with another dialog.
+  %a{ :href => guide_pic("ical", 2), :rel => "lightbox" }
+    %img{ :src => guide_pic("ical", 2) }
+  %p
+    Make sure you select an appropriate auto-refresh time, or your calendar
+    will not update itself.
+    %b This is important.
+    The default value is "No", I personally suggest "Every hour".
+  %img.tiny{ :src => guide_pic("ical", 3) }
+  %p
+    Click "OK" and your new timetable calendar will appear in the
+    "Subscriptions" section of your sidebar.
+#gcal.instructions
+  %h3 Google Calendar
+  %p
+    Copy the link above. Then go to
+    %a{ :href => "http://www.google.com/calendar", :target => "_blank" }
+      Google Calendar
+    and click on the "Add" button under "Other calendars".
+  %img.tiny{ :src => guide_pic("gcal", 1) }
+  %p
+    A menu will appear. Click on "Add by URL".
+  %img.tiny{ :src => guide_pic("gcal", 2) }
+  %p
+    Paste the URL into the dialog that will appear, then click "Add Calendar".
+  %a{ :href => guide_pic("gcal", 3), :rel => "lightbox" }
+    %img{ :src => guide_pic("gcal", 3) }
+  %p
+    While Google Calendar loads all the events from the calendar file, you
+    should see this message near the top of the page.
+  %img.tiny{ :src => guide_pic("gcal", 4) }
+  %p
+    Once it's been processed, the message will disappear and Google Calendar
+    will take it upon itself to update the calendar at regular intervals.
+#outlook.instructions
+  %h3 Microsoft Outlook
+  %p
+    Unfortunately, Microsoft Outlook isn't officially supported at the moment.
+    This means that you can try using it with the URL above, but most events
+    will probably be off by an hour because of the weird, undocumented, non-
+    standard way that Outlook handles timezones and DST.
+  %p
+    On a brighter note, my access logs reveal that (perhaps understandably) not
+    a single user has ever accessed their timetable through Microsoft Outlook,
+    so hopefully not too many people will be affected by this.
+  %p
+    However, if your workflow depends on using Outlook to manage your personal
+    calendar and you think you could help me fix the problems with Outlook's
+    handling of the timetable files, you're welcome to drop me a line to the
+    email address above, and I'll be more than happy to work together towards
+    a solution.

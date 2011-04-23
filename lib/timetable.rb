@@ -21,9 +21,15 @@ module Timetable
 
       # Returns the year of entry corresponding to a given course
       # year (as a number), so that 1 corresponds to the current
-      # academic year, 2 to last year, etc.
+      # academic year, 2 to last year, etc
       def year_to_yoe(year)
         Timetable::academic_year - year + 1
+      end
+
+      # Returns the URL of the install guide picture for a given
+      # app (iCal, GCal, etc) and a given step in the guide.
+      def guide_pic(app, step)
+        "images/#{app}/step#{step}.png"
       end
     end
 
@@ -34,7 +40,10 @@ module Timetable
     end
 
     post '/install' do
-      # TODO
+      @course = params[:course]
+      @yoe = params[:yoe]
+      @url = "webcal://example.com"
+      haml :install
     end
 
     # Match routes such as /comp/09 or /jmc/10

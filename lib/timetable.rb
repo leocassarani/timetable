@@ -40,6 +40,7 @@ module Timetable
     end
 
     post '/install' do
+      @lightbox = true
       @course = params[:course]
       @yoe = params[:yoe]
       @url = "webcal://example.com"

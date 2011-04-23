@@ -2,7 +2,8 @@
 %html
   %head
     %title DoC Timetable
-    %link{ :rel => "stylesheet", :href => "stylesheets/style.css" }
     %link{ :rel => "icon", :type => "image/png", :href => "images/favicon.png" }
+    = render :haml, :stylesheets
+    = render :haml, :javascripts
   %body
     = yield

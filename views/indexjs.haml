@@ -3,10 +3,12 @@
     populateOptions();
     document.getElementById("formsubmit").onclick = enableDropDown;
     document.getElementById("course").onchange = populateOptions;
+    document.getElementById("yoe").onchange = populateModules;
   }
 
+  year = #{Timetable::academic_year};
+
   function populateOptions() {
-    var year = #{Timetable::academic_year};
     var courseSelect = document.getElementById("course");
     var courseID = courseSelect.options[courseSelect.selectedIndex].value;
 
@@ -31,6 +33,55 @@
         newOption.selected = true;
 
       yoeSelect.options[i] = newOption;
+    }
+
+    populateModules();
+  }
+
+  function populateModules() {
+    var modules = #{@modules.to_json};
+    var course_mods = #{@course_modules.to_json};
+    var fieldset = document.getElementById("modules");
+    while (fieldset.childNodes.length > 0)
+      fieldset.removeChild(fieldset.lastChild);
+
+    var legend = document.createElement("legend");
+    legend.innerHTML = "Now only tick the modules you're taking this year";
+    fieldset.appendChild(legend);
+
+    var courseSelect = document.getElementById("course");
+    var courseID = courseSelect.options[courseSelect.selectedIndex].value;
+    var yoeSelect = document.getElementById("yoe");
+    var yearIndex = (year - 2000) - yoeSelect.options[yoeSelect.selectedIndex].value + 1;
+
+    var currentModules = course_mods[courseID];
+    if (currentModules == undefined)
+      return;
+    currentModules = currentModules[yearIndex.toString()];
+    if (currentModules == undefined)
+    return;
+
+    fieldset.className = currentModules.length > 0 ? "" : "hidden";
+
+    for (var i = 0; i < currentModules.length; i++) {
+      var module = currentModules[i];
+      var checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.name = module;
+      checkbox.id = module;
+      checkbox.checked = true;
+
+      var label = document.createElement("label");
+      label.htmlFor = module;
+      var moduleName = modules[module.toString()];
+      if (moduleName == undefined)
+        moduleName = "";
+      label.innerHTML = module.toString() + " " + moduleName;
+
+      var br = document.createElement("br");
+      fieldset.appendChild(checkbox);
+      fieldset.appendChild(label);
+      fieldset.appendChild(br);
     }
   }
 

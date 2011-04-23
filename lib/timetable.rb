@@ -10,6 +10,35 @@ module Timetable
     set :root, File.dirname(File.dirname(__FILE__))
     set :haml, :format => :html5
 
+    get '/' do
+      @courses = config("courses")
+      @modules = config("modules")
+      @course_modules = config("course_modules")
+      @course_years = course_years
+      haml :index
+    end
+
+    post '/install' do
+      # Tell the views to include the lightbox image viewer js files
+      @lightbox = true
+      @course = params[:course]
+      @yoe = params[:yoe]
+      @url = "webcal://example.com"
+      haml :install
+    end
+
+    # Match routes such as /comp/09 or /jmc/10
+    get %r{/([a-z]+)/([\d]{2})/?} do
+      course, yoe = params[:captures]
+      begin
+        calendar = Calendar.new(course, yoe)
+      rescue ArgumentError => e
+        return e.message
+      end
+      headers "Content-Type" => "text/plain"
+      calendar.to_ical
+    end
+
     helpers do
       # Given a number, returns a string with the number followed
       # by its ordinal suffix. E.g. 1 is "1st". Only works in the
@@ -33,40 +62,23 @@ module Timetable
       end
     end
 
-    get '/' do
-      @courses = config("courses")
-      @course_years = course_years
-      haml :index
-    end
-
-    post '/install' do
-      @lightbox = true
-      @course = params[:course]
-      @yoe = params[:yoe]
-      @url = "webcal://example.com"
-      haml :install
-    end
-
-    # Match routes such as /comp/09 or /jmc/10
-    get %r{/([a-z]+)/([\d]{2})/?} do
-      course, yoe = params[:captures]
-      begin
-        calendar = Calendar.new(course, yoe)
-      rescue ArgumentError => e
-        return e.message
-      end
-      headers "Content-Type" => "text/plain"
-      calendar.to_ical
-    end
+  private
 
     # Returns the configuration value for a given key
     def config(key)
-      @config ||= YAML.load_file("config/timetable.yml")
+      @config ||= load_config
       @config[key]
     end
 
-    # Helper method that returns a hash containing an array of
-    # valid years for every course ID, e.g. "comp" => [1,2,3,4]
+    # Loads all the configuration files into a hash and returns it
+    def load_config
+      config = {}
+      config.merge!(YAML.load_file("config/timetable.yml"))
+      config.merge!(YAML.load_file("config/modules.yml"))
+    end
+
+    # Returns a hash containing an array of valid years for every
+    # course ID, e.g. "comp" => [1,2,3,4], "ee" => [3,4]
     def course_years
       config("course_ids").inject({}) do |memo, (k, v)|
         memo.merge({k => v.keys})

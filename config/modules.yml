@@ -1,0 +1,199 @@
+modules:
+  202:  Software Engineering - Algorithms
+  210:  Computer Architecture
+  221:  Compilers
+  223:  Concurrency
+  231:  Introduction to Artificial Intelligence
+  233:  Computational Techniques
+  240:  Models of Computation
+  312:  Advanced Databases
+  317:  Graphics
+  318:  Custom Computing
+  320:  Complex Systems
+  330:  Network Security
+  332:  Advanced Computer Architecture
+  333:  Robotics
+  335:  Distributed Systems
+  337:  Simulation and Modelling
+  338:  Pervasive Computing
+  341:  Introduction to Bioinformatics
+  343:  Operations Research
+  345:  Ludic Computing
+  348:  Ontologies and the Semantic Web
+  382:  Type Systems for Programming Languages
+  395:  Machine Learning
+  417:  Advanced Graphics and Visualisation
+  418:  Computer Vision
+  424:  Machine Learning and Neural Computation
+  417:  Advanced Graphics and Visualisation
+  418:  Computer Vision
+  421:  Computational Neurodynamics
+  422:  Computational Finance
+  424:  Machine Learning and Neural Computation
+  429:  Parallel Algorithms
+  436:  Performance Analysis
+  437:  Distributed Algorithms
+  438:  Complexity
+  470:  Program Analysis
+  471:  Advanced Issues in Object Oriented Programming
+  474:  Multi-agent Systems
+  475:  Advanced Topics in Software Engineering
+  477:  Computing for Optimal Decisions
+  480:  Automated Reasoning
+  481:  Models of Concurrent Computation
+  484:  Quantum Computing
+  491:  Knowledge Representation
+  493:  Intelligent Data and Probabilistic Inference
+  499:  Modal and Temporal Logic
+  526:  Databases
+  527:  Computer Networks and Distributed Systems
+  528:  Concurrent Programming
+  M2PM5:  "Metric Spaces & Topology"
+  M2AA1:  Differential Equations
+  M2PM2:  Algebra II
+  M2AA3:  Orthogonality
+  M3N3:   Optimisation
+  M3N4:   Computational Linear Algebra
+  M3N7:   Numerical Solution of Ordinary Differential Equations
+  M3N10:  Computational Partial Differential Equations I
+
+course_modules:
+  comp:
+    1: []
+    2:
+      - 210
+      - 223
+      - 231
+      - 233
+    
+    3:
+      - 312
+      - 317
+      - 318
+      - 320
+      - 330
+      - 332
+      - 333
+      - 335
+      - 337
+      - 338
+      - 341
+      - 343
+      - 345
+      - 348
+      - 395
+    
+    4:
+      - 417
+      - 418
+      - 421
+      - 422
+      - 424
+      - 429
+      - 436
+      - 437
+      - 438
+      - 470
+      - 471
+      - 474
+      - 475
+      - 477
+      - 480
+      - 481
+      - 484
+      - 491
+      - 493
+      - 499
+    
+  
+  jmc:
+    1:  []
+    2:
+      - 202
+      - 221
+      - 223
+      - 231
+      - 240
+      - 526
+      - M2PM5
+      - M2AA1
+    
+    3:
+      - 221
+      - 317
+      - 318
+      - 320
+      - 330
+      - 333
+      - 335
+      - 337
+      - 341
+      - 343
+      - 382
+      - 395
+      - 526
+      - 527
+      - 528
+      - M2PM5
+      - M2AA3
+      - M2PM5
+      - M2AA1
+      - M3N3
+      - M3N4
+      - M3N7
+      - M3N10
+      - M3P5
+      - M3P20
+      - M3P21
+      - M3P8
+      - M3P10
+      - M3P11
+      - M3P12
+      - M3P17
+      - M3P22
+      - M3P14
+      - M3P15
+      - M2S1
+      - M2S2
+      - M3S1
+      - M3S2
+      - M3S3
+      - M3S4
+      - M3S7
+      - M3S8
+      - M3S9
+      - M3S10
+      - M3S11
+      - M3S12
+      - M3S14
+      - M3S15
+      - M3S16
+      - M3T
+    
+    4:
+      - 312
+      - 317
+      - 320
+      - 332
+      - 382
+      - 395
+      - 417
+      - 418
+      - 422
+      - 429
+      - 436
+      - 437
+      - 438
+      - 470
+      - 471
+      - 474
+      - 475
+      - 477
+      - 480
+      - 481
+      - 484
+      - 491
+      - 493
+      - 499
+    
+  

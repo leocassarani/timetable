@@ -13,4 +13,6 @@
           %option{ :value => year }
             #{ordinal(year)} year (#{year_to_yoe(year)} entry)
       %input#formsubmit{ :type => "submit", :name => "submit", :value => "Submit" }
+      %fieldset#modules.hidden
+        %legend "Now only tick the modules you're taking this year"
 = render :haml, :footer

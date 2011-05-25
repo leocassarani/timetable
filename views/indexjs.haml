@@ -7,12 +7,14 @@
   }
 
   year = #{Timetable::academic_year};
+  courseYears = #{@course_years.to_json};
+  modules = #{@modules.to_json};
+  course_mods = #{@course_modules.to_json};
 
   function populateOptions() {
     var courseSelect = document.getElementById("course");
     var courseID = courseSelect.options[courseSelect.selectedIndex].value;
 
-    courseYears = #{@course_years.to_json};
     var years = courseYears[courseID];
     if (years == undefined)
       years = [1,2,3,4];
@@ -39,8 +41,6 @@
   }
 
   function populateModules() {
-    var modules = #{@modules.to_json};
-    var course_mods = #{@course_modules.to_json};
     var fieldset = document.getElementById("modules");
     while (fieldset.childNodes.length > 0)
       fieldset.removeChild(fieldset.lastChild);

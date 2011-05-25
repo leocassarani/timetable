@@ -14,17 +14,24 @@ module Timetable
     Time.now.year - (new_year? ? 1 : 0)
   end
 
+  # Computes the course year given the year of entry, e.g. in autumn
+  # 2010 students who entered the course in 2008 are in year 3
+  def self.course_year(yoe)
+    year = Timetable::academic_year - (yoe + 2000)
+    # Add one as we want to count from 1, not 0
+    year += 1
+    year
+  end
+
   class Calendar
     attr_reader :course, :yoe
 
     def initialize(course, yoe)
-      @config = YAML.load_file("config/timetable.yml")
-
       validate_arguments(course, yoe)
 
       @course = course
       @yoe = yoe.to_i
-      @course_year = course_year
+      @course_year = Timetable::course_year(yoe)
       @course_id = course_id
 
       process_all
@@ -39,7 +46,7 @@ module Timetable
     # Checks that the parameters provided by the user are valid,
     # i.e. the course name exists and the yoe is within range
     def validate_arguments(course, yoe_text)
-      unless @config['courses'].has_key?(course)
+      unless config("courses").has_key?(course)
         raise ArgumentError, %Q{Invalid course name "#{course}"}
       end
 
@@ -51,8 +58,8 @@ module Timetable
 
     # Downloads and parses all the necessary files
     def process_all
-      @config['seasons'].each do |season|
-        @config['week_ranges'].each do |weeks|
+      config("seasons").each do |season|
+        config("week_ranges").each do |weeks|
           download(season, weeks)
           parse
         end
@@ -69,6 +76,11 @@ module Timetable
       @cal = parser.parse(@cal)
     end
 
+    def config(key)
+      @config ||= YAML.load_file("config/timetable.yml")
+      @config[key]
+    end
+
     # Returns the range of valid years of entry
     def valid_years
       now = Time.now
@@ -80,17 +92,8 @@ module Timetable
       range_start..range_end
     end
 
-    # Computes the course year given the year of entry, e.g. in autumn
-    # 2010 students who entered the course in 2008 are in year 3
-    def course_year
-      year = Timetable::academic_year - (yoe + 2000)
-      # Add one as we want to count from 1, not 0
-      year += 1
-      year
-    end
-
     def course_id
-      ids = @config['course_ids'][course]
+      ids = config("course_ids")[course]
       return if ids.nil?
       ids[@course_year]
     end

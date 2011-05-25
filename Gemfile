@@ -1,11 +1,13 @@
 source :rubygems
 
 gem "activesupport", :require => "active_support/core_ext"
+gem "bson_ext" # Needed for optimum MongoDB performance
 gem "haml"
 gem "hpricot"
 gem "icalendar"
 gem "i18n"
 gem "json"
+gem "mongo"
 gem "sinatra", "~> 1.2.2"
 gem "shotgun"
 gem "rack", "~> 1.2.2"

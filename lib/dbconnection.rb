@@ -4,15 +4,19 @@ module Timetable
   class DatabaseConnection
     # Establishes a connection to our MongoHQ instance
     def initialize(collection)
-      # TODO: define expected behaviour for when MongoHQ URL not
-      # specified or connection unsuccessful
       if ENV['MONGOHQ_URL']
         uri = URI.parse(ENV['MONGOHQ_URL'])
-        @conn = Mongo::Connection.from_uri(ENV['MONGOHQ_URL'])
+        begin
+          @conn = Mongo::Connection.from_uri(ENV['MONGOHQ_URL'])
+        rescue Mongo::MongoArgumentError => e
+          raise RuntimeError, "Invalid database configuration."
+        end
         db = @conn.db(uri.path.gsub(/^\//, ''))
         # Save the collection with the given name: we're going to
         # use @coll to retrieve, find and insert entries
         @coll = db.collection(collection)
+      else
+        raise RuntimeError, "Cannot connect to the database."
       end
     end
 

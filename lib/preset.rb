@@ -18,6 +18,8 @@ module Timetable
       @modules = modules.map { |mod| mod.to_s }
 
       @ignored = modules_ignored
+      # No point carrying on if the user is interested in all the modules
+      return if @ignored.empty?
 
       @name = get_preset_name
       save_to_database

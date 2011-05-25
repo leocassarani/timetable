@@ -39,10 +39,13 @@ module Timetable
       # that database record and will avoid creating a new one
       begin
         preset = Preset.new(params[:course], yoe, year, modules)
-      rescue IOError => e
+      rescue RuntimeError => e
         return error 500, e.message
       end
-      @url = "webcal://localhost:9393/#{preset.name}"
+      # If the preset doesn't exist (e.g. because the user took all the
+      # modules), then give them a default url of the form course/yoe
+      name = preset.name || "#{params[:course]}/#{params[:yoe]}"
+      @url = "webcal://localhost:9393/#{name}"
 
       # Tell the views to include the lightbox image viewer js files
       @lightbox = true

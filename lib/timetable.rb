@@ -42,6 +42,7 @@ module Timetable
       rescue RuntimeError => e
         return error 500, e.message
       end
+
       # If the preset doesn't exist (e.g. because the user took all the
       # modules), then give them a default url of the form course/yoe
       name = preset.name || "#{params[:course]}/#{params[:yoe]}"

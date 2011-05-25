@@ -1,4 +1,4 @@
-require 'digest/md5'
+require 'digest/sha1'
 require 'yaml'
 require_relative 'dbconnection'
 
@@ -49,7 +49,7 @@ module Timetable
     def get_preset_name
       return if @ignored.nil?
       salted = @course.to_s + @yoe.to_s + @ignored.join
-      Digest::MD5.hexdigest(salted)[0,5]
+      Digest::SHA1.hexdigest(salted)[0,5]
     end
 
     # Checks whether the preset is already present in our MongoHQ

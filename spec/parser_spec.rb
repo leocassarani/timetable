@@ -61,7 +61,7 @@ describe Timetable::Parser do
       events = @parser.parse.events
 
       events.sort { |a, b| a.start <=> b.start }
-      locations = events.map { |e| e.location }
+      locations = events.map(&:location)
 
       empty, textual, numeric_single, numeric_multiple, mix = locations
       empty.should be_empty

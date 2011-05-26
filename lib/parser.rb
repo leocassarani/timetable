@@ -100,7 +100,7 @@ module Timetable
     def find_cells
       @doc ||= Hpricot(input)
       @cells = @doc.search("table/tbody/tr/td/font")
-      @cells.map! { |node| node.inner_html }
+      @cells.map!(&:inner_html)
     end
 
     # Iterates over the array of table cells and puts together an

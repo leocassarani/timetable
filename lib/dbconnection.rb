@@ -24,6 +24,11 @@ module Timetable
       @coll.insert(entry)
     end
 
+    def update(obj, entry)
+      raise ArgumentError, "Bad object data" unless obj.has_key? "_id"
+      @coll.update({"_id" => obj["_id"]}, entry)
+    end
+
     # Returns true if a preset with a given name already exists,
     # false otherwise
     def exists?(query)

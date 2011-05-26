@@ -15,7 +15,7 @@ module Timetable
       @course = course
       @yoe = yoe
       @year = year
-      @modules = modules.map { |mod| mod.to_s }
+      @modules = modules.map(&:to_s)
 
       @ignored = modules_ignored
       # No point carrying on if the user is interested in all the modules
@@ -38,7 +38,7 @@ module Timetable
       mods = mods[@year] || []
       # Convert everything to string to make sure we can compare
       # the elements to the ones in @modules, which are strings
-      mods.map! { |mod| mod.to_s }
+      mods.map!(&:to_s)
 
       # Return the set difference between all the modules for the
       # course, yoe pair and the modules chosen by the user
@@ -56,7 +56,6 @@ module Timetable
     # instance, and saves it to the database if it isn't
     def save_to_database
       return if @name.nil?
-
       db = DatabaseConnection.new("presets")
       # Only insert if the record doesn't exist already
       unless db.exists?("name" => @name)

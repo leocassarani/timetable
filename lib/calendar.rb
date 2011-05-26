@@ -1,4 +1,6 @@
+require 'icalendar'
 require 'yaml'
+require_relative 'cache'
 require_relative 'downloader'
 require_relative 'parser'
 
@@ -34,7 +36,7 @@ module Timetable
       @course_year = Timetable::course_year(yoe)
       @course_id = course_id
 
-      process_all
+      process_all unless load_cached
     end
 
     def to_ical
@@ -56,23 +58,42 @@ module Timetable
       end
     end
 
+    # Attempts to load the cached copy of the parsed timetable files
+    def load_cached
+      begin
+        if Cache.has?(@course_id)
+          puts "Hitting cache"
+          events = Cache.get(@course_id)
+          @cal = Icalendar::Calendar.new
+          @cal.prodid = "DoC Timetable"
+          # TODO: set timezones
+          events.each { |e| @cal.add_event(e) }
+          return true
+        end
+      rescue
+        return nil
+      end
+    end
+
     # Downloads and parses all the necessary files
     def process_all
+      puts "Not hitting cache"
       config("seasons").each do |season|
         config("week_ranges").each do |weeks|
-          download(season, weeks)
-          parse
+          data = download(season, weeks)
+          parse(data)
         end
       end
+      Cache.save(@course_id, @cal.events)
     end
 
     def download(season, weeks)
       downloader = Downloader.new(@course_id, season, weeks)
-      @data = downloader.download
+      downloader.download
     end
 
-    def parse
-      parser = Parser.new(@data)
+    def parse(data)
+      parser = Parser.new(data)
       @cal = parser.parse(@cal)
     end
 

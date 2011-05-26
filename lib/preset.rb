@@ -8,7 +8,9 @@ module Timetable
 
     def self.find(name)
       db = DatabaseConnection.new("presets")
-      db.find("name" => name)
+      preset = db.find("name" => name)
+      db.close
+      preset
     end
 
     def initialize(course, yoe, year, modules = nil)

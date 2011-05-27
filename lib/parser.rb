@@ -106,9 +106,9 @@ module Timetable
     # Iterates over the array of table cells and puts together an
     # Icalendar::Calendar object with all the events it can find.
     #
-    # Accepts as an optional parameter an Icalendar::Calendar
-    # object to be used as the output calendar, useful in order
-    # to merge the new events with previously created ones.
+    # Takes as an optional argument an Icalendar::Calendar object
+    # to be used as the output calendar, useful in order to merge
+    # the new events with previously created ones
     def parse_cells(cal = nil)
       @calendar = cal || Icalendar::Calendar.new
       day = time = 0

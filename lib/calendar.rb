@@ -33,11 +33,12 @@ module Timetable
 
       @course = course
       @yoe = yoe.to_i
-      @ignored = ignored
+      @ignored = ignored_names(ignored)
+
       @course_year = Timetable::course_year(yoe)
       @course_id = course_id
 
-      process_all unless load_cached
+      process_all # unless load_cached
     end
 
     def to_ical
@@ -59,6 +60,12 @@ module Timetable
       end
     end
 
+    # Returns an array with the names of the modules not taken
+    def ignored_names(ignored)
+      modules = config("modules") || []
+      ignored.map! { |i| modules[i] || "" }
+    end
+
     # Attempts to load the cached copy of the parsed timetable files
     def load_cached
       begin
@@ -69,17 +76,10 @@ module Timetable
           # Initialise @cal as an empty Icalendar::Calendar instance
           init_calendar
 
-          # Build an array with the names of the modules not taken
-          modules = config("modules") || []
-          ignored = @ignored.map { |i| modules[i] || "" }
-
-          # Add all cached events to our (empty) calendar. Don't add an
-          # event if its summary attribute starts with the name of one
-          # of the modules the user isn't taking.
+          # Add all cached events to our (empty) calendar, unless they
+          # relate to a module that's in the ignored list
           events.each do |e|
-            unless ignored.any? { |mod| e.summary =~ /^#{mod}/i }
-              @cal.add_event(e)
-            end
+            @cal.add_event(e) unless should_ignore(e)
           end
 
           return true
@@ -89,6 +89,7 @@ module Timetable
       end
     end
 
+    # Initialises an empty calendar and saves it to the @cal instance var
     def init_calendar
       @cal = Icalendar::Calendar.new
       @cal.prodid = "DoC Timetable"
@@ -118,13 +119,16 @@ module Timetable
       end
     end
 
-    # Downloads and parses all the necessary files
+    # Downloads and parses all the necessary files, then saves it all
+    # to cache and applies preset options
     def process_all
       puts "Not hitting cache"
 
       # Initialise an empty calendar in @cal
       init_calendar
 
+      # Download and parse each of the files for all the seasons
+      # and week ranges we need to process
       config("seasons").each do |season|
         config("week_ranges").each do |weeks|
           data = download(season, weeks)
@@ -134,6 +138,20 @@ module Timetable
 
       # Save the parsed events to cache to speed up future requests
       Cache.save(@course_id, @cal.events)
+
+      # Apply the preset options by hiding ignored modules - we have to
+      # do this in a slightly roundabout way because it wouldn't be safe
+      # to remove events while they're being iterated upon
+      remove = []
+      @cal.events.each { |e| remove << e if should_ignore(e) }
+      remove.each { |e| @cal.remove_event(e) }
+    end
+
+    # Returns true if a given event should be ignored, that is if
+    # its #summary string attribute starts with the name of one of
+    # the modules the user isn't taking
+    def should_ignore(e)
+      @ignored.any? { |ign| e.summary =~ /^#{ign}/i }
     end
 
     def download(season, weeks)
@@ -143,7 +161,7 @@ module Timetable
 
     def parse(data)
       parser = Parser.new(data)
-      @cal = parser.parse(@cal)
+      @cal = parser.parse(@cal, @ignored)
     end
 
     def config(key)

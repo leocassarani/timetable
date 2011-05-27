@@ -38,7 +38,7 @@ module Timetable
       @course_year = Timetable::course_year(yoe)
       @course_id = course_id
 
-      process_all # unless load_cached
+      process_all unless load_cached
     end
 
     def to_ical
@@ -161,7 +161,7 @@ module Timetable
 
     def parse(data)
       parser = Parser.new(data)
-      @cal = parser.parse(@cal, @ignored)
+      @cal = parser.parse(@cal)
     end
 
     def config(key)

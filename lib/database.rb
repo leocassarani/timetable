@@ -25,7 +25,7 @@ module Timetable
     end
 
     def update(obj, entry)
-      raise ArgumentError, "Bad object data" unless obj.has_key? "_id"
+      raise ArgumentError, "_id field missing" unless obj.has_key? "_id"
       @coll.update({"_id" => obj["_id"]}, entry)
     end
 

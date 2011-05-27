@@ -28,11 +28,12 @@ module Timetable
   class Calendar
     attr_reader :course, :yoe
 
-    def initialize(course, yoe)
+    def initialize(course, yoe, ignored = [])
       validate_arguments(course, yoe)
 
       @course = course
       @yoe = yoe.to_i
+      @ignored = ignored
       @course_year = Timetable::course_year(yoe)
       @course_id = course_id
 
@@ -64,9 +65,23 @@ module Timetable
         if Cache.has?(@course_id)
           puts "Hitting cache"
           events = Cache.get(@course_id)
+
           # Initialise @cal as an empty Icalendar::Calendar instance
           init_calendar
-          events.each { |e| @cal.add_event(e) }
+
+          # Build an array with the names of the modules not taken
+          modules = config("modules") || []
+          ignored = @ignored.map { |i| modules[i] || "" }
+
+          # Add all cached events to our (empty) calendar. Don't add an
+          # event if its summary attribute starts with the name of one
+          # of the modules the user isn't taking.
+          events.each do |e|
+            unless ignored.any? { |mod| e.summary =~ /^#{mod}/i }
+              @cal.add_event(e)
+            end
+          end
+
           return true
         end
       rescue
@@ -132,8 +147,15 @@ module Timetable
     end
 
     def config(key)
-      @config ||= YAML.load_file("config/timetable.yml")
+      @config ||= load_config
       @config[key]
+    end
+
+    # Loads all the configuration files into a hash and returns it
+    def load_config
+      config = {}
+      config.merge!(YAML.load_file("config/timetable.yml"))
+      config.merge!(YAML.load_file("config/modules.yml"))
     end
 
     # Returns the range of valid years of entry

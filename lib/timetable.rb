@@ -97,7 +97,7 @@ module Timetable
     # course and year of entry, and (optional) ignored modules
     def show_ical(course, yoe, ignored = [])
       begin
-        calendar = Calendar.new(course, yoe.to_i)
+        calendar = Calendar.new(course, yoe.to_i, ignored)
       rescue ArgumentError => e
         return error 404, e.message
       end

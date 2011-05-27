@@ -1,13 +1,15 @@
 require 'digest/sha1'
 require 'yaml'
-require_relative 'dbconnection'
+require_relative 'database'
 
 module Timetable
   class Preset
     attr_reader :name
 
+    COLLECTION = "presets"
+
     def self.find(name)
-      db = DatabaseConnection.new("presets")
+      db = DatabaseConnection.new(COLLECTION)
       preset = db.find("name" => name)
       db.close
       preset
@@ -20,7 +22,7 @@ module Timetable
       @modules = modules.map(&:to_s)
 
       @ignored = modules_ignored
-      # No point carrying on if the user is interested in all the modules
+      # No point carrying on if no preset necessary
       return if @ignored.empty?
 
       @name = get_preset_name
@@ -58,7 +60,7 @@ module Timetable
     # instance, and saves it to the database if it isn't
     def save_to_database
       return if @name.nil?
-      db = DatabaseConnection.new("presets")
+      db = DatabaseConnection.new(COLLECTION)
       # Only insert if the record doesn't exist already
       unless db.exists?("name" => @name)
         db.insert(

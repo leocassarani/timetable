@@ -1,9 +1,11 @@
 require 'active_support/core_ext'
 require 'icalendar'
+require_relative 'database'
 
 module Timetable
   class Cache
     COLLECTION = "cache"
+
     # Returns whether a particular course_id is cached in our database
     def self.has?(course_id)
       db = DatabaseConnection.new(COLLECTION)

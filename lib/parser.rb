@@ -18,16 +18,16 @@ class String
 end
 
 module Timetable
-  EVENT_TYPES = {
-    "LEC" => "Lecture",
-    "LAB" => "Lab",
-    "TUT" => "Tutorial",
-    "Wks" => ''
-  }
-
   class Parser
     attr_accessor :input
     attr_reader :calendar
+
+    EVENT_TYPES = {
+      "LEC" => "Lecture",
+      "LAB" => "Lab",
+      "TUT" => "Tutorial",
+      "Wks" => ''
+    }
 
     # Unique event ID, shared by all Parser objects
     @@uid = 1
@@ -105,17 +105,12 @@ module Timetable
 
     # Iterates over the array of table cells and puts together an
     # Icalendar::Calendar object with all the events it can find.
+    #
     # Accepts as an optional parameter an Icalendar::Calendar
-    # object to be used as the output calendar, useful when wanting
+    # object to be used as the output calendar, useful in order
     # to merge the new events with previously created ones.
     def parse_cells(cal = nil)
-      if cal.nil?
-        @calendar = Icalendar::Calendar.new
-        @calendar.prodid = "DoC Timetable"
-        set_timezones
-      else
-        @calendar = cal
-      end
+      @calendar = cal || Icalendar::Calendar.new
       day = time = 0
 
       @cells.each do |cell|
@@ -249,29 +244,6 @@ module Timetable
       @events ||= Hash.new { |h, k| h[k] = [] }
       an_hour_earlier = event.start.advance(:hours => -1)
       @events[an_hour_earlier]
-    end
-
-    # Sets the two timezones (DST and standard) for @calendar to use
-    def set_timezones
-      @calendar.timezone do
-        timezone_id "Europe/London"
-
-        daylight do
-          timezone_offset_from "+0000"
-          timezone_offset_to "+0100"
-          timezone_name "BST"
-          dtstart "19700329T010000"
-          add_recurrence_rule "FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU"
-        end
-
-        standard do
-          timezone_offset_from "+0100"
-          timezone_offset_to "+0000"
-          timezone_name "GMT"
-          dtstart "19701025T020000"
-          add_recurrence_rule "FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU"
-        end
-      end
     end
   end
 end

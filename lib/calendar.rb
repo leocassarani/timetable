@@ -64,9 +64,8 @@ module Timetable
         if Cache.has?(@course_id)
           puts "Hitting cache"
           events = Cache.get(@course_id)
-          @cal = Icalendar::Calendar.new
-          @cal.prodid = "DoC Timetable"
-          # TODO: set timezones
+          # Initialise @cal as an empty Icalendar::Calendar instance
+          init_calendar
           events.each { |e| @cal.add_event(e) }
           return true
         end
@@ -75,15 +74,50 @@ module Timetable
       end
     end
 
+    def init_calendar
+      @cal = Icalendar::Calendar.new
+      @cal.prodid = "DoC Timetable"
+      set_timezones
+    end
+
+    # Sets the two timezones (DST and standard) for @cal to use
+    def set_timezones
+      @cal.timezone do
+        timezone_id "Europe/London"
+
+        daylight do
+          timezone_offset_from "+0000"
+          timezone_offset_to "+0100"
+          timezone_name "BST"
+          dtstart "19700329T010000"
+          add_recurrence_rule "FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU"
+        end
+
+        standard do
+          timezone_offset_from "+0100"
+          timezone_offset_to "+0000"
+          timezone_name "GMT"
+          dtstart "19701025T020000"
+          add_recurrence_rule "FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU"
+        end
+      end
+    end
+
     # Downloads and parses all the necessary files
     def process_all
       puts "Not hitting cache"
+
+      # Initialise an empty calendar in @cal
+      init_calendar
+
       config("seasons").each do |season|
         config("week_ranges").each do |weeks|
           data = download(season, weeks)
           parse(data)
         end
       end
+
+      # Save the parsed events to cache to speed up future requests
       Cache.save(@course_id, @cal.events)
     end
 

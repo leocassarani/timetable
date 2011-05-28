@@ -32,7 +32,7 @@ module Timetable
   private
 
     # Returns the modules that the user has chosen to ignore,
-    # given the ones he's chosen to take
+    # given the ones they've chosen to take
     def modules_ignored
       # If @modules is nil, we assume the user is not ignoring anything
       return [] if @modules.nil?
@@ -45,7 +45,7 @@ module Timetable
       mods.map!(&:to_s)
 
       # Return the set difference between all the modules for the
-      # course, yoe pair and the modules chosen by the user
+      # given (course, yoe) pair and the modules chosen by the user
       ignored = mods - @modules
       ignored.sort
     end

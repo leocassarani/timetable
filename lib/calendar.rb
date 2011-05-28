@@ -70,7 +70,6 @@ module Timetable
     def load_cached
       begin
         if Cache.has?(@course_id)
-          puts "Hitting cache"
           events = Cache.get(@course_id)
 
           # Initialise @cal as an empty Icalendar::Calendar instance
@@ -122,8 +121,6 @@ module Timetable
     # Downloads and parses all the necessary files, then saves it all
     # to cache and applies preset options
     def process_all
-      puts "Not hitting cache"
-
       # Initialise an empty calendar in @cal
       init_calendar
 

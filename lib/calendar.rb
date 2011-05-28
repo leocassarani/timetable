@@ -39,6 +39,7 @@ module Timetable
       @course_id = course_id
 
       process_all unless load_cached
+      set_calendar_name
     end
 
     def to_ical
@@ -161,6 +162,18 @@ module Timetable
       @cal = parser.parse(@cal)
     end
 
+    # Sets the default name for the output calendar
+    def set_calendar_name
+      calname = course_name
+      calname += " Year #{@course_year}" unless masters_course
+      @cal.custom_property("X-WR-CALNAME", calname)
+    end
+
+    # Returns true if @course_id is a single-year course
+    def masters_course
+      config("course_ids")[course].count == 1
+    end
+
     def config(key)
       @config ||= load_config
       @config[key]
@@ -182,6 +195,10 @@ module Timetable
       range_start = range_end - 3
 
       range_start..range_end
+    end
+
+    def course_name
+      config("courses")[course] || ""
     end
 
     def course_id

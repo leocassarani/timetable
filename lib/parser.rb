@@ -29,11 +29,9 @@ module Timetable
       "Wks" => ''
     }
 
-    # Unique event ID, shared by all Parser objects
-    @@uid = 1
-
     def initialize(input = nil)
       @input = input
+      @uid = 1
     end
 
     # The optional parameter is a default output calendar,
@@ -158,15 +156,17 @@ module Timetable
         )
 
         event = Icalendar::Event.new
-        event.uid = "DOC-#{@@uid}"
-        @@uid += 1
+        event.uid = "DOC-#{@uid}"
+        @uid += 1
         event.tzid = "Europe/London"
         event.start = start_date
         # For now assume every event ends after an hour
         event.end = event.start.advance(:hours => 1)
 
         summary = title
-        summary += " (#{type})" unless type.empty?
+        # Only add the non-empty event type if it's not contained in the
+        # summary already - e.g. "Laboratory I", not "Laboratory I (Lab)"
+        summary += " (#{type})" unless type.empty? || title.include?(type)
         event.summary = summary
         event.description = attendees
         event.location = location

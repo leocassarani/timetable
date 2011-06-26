@@ -1,11 +1,11 @@
-require 'parser'
-
-def read_sample_data(filename)
-  filepath = File.join(File.dirname(__FILE__), "data/#{filename}")
-  File.read(filepath)
-end
+require 'spec_helper'
 
 describe Timetable::Parser do
+  def read_sample_data(filename)
+    filepath = File.join(File.dirname(__FILE__), "data/#{filename}")
+    File.read(filepath)
+  end
+
   before :each do
     @parser = Timetable::Parser.new
   end
@@ -177,20 +177,23 @@ end
 # String monkey patches
 describe String do
   describe "#integer?" do
-    context "given an unsigned positive integer" do
+    context "given an unsigned nonnegative integer" do
+      let(:inputs) { %w[0 42 123] }
+
       it "returns true" do
-        "1".integer?.should be_true
-        "123".integer?.should be_true
+        inputs.each do |input|
+          input.integer?.should be_true
+        end
       end
     end
 
     context "given any non-integer input" do
+      let(:inputs) { [""] + %w[+123 -123 123b4con bacon] }
+
       it "returns false" do
-        "".integer?.should be_false
-        "+123".integer?.should be_false
-        "-123".integer?.should be_false
-        "123b4con".integer?.should be_false
-        "bacon".integer?.should be_false
+        inputs.each do |input|
+          input.integer?.should be_false
+        end
       end
     end
   end

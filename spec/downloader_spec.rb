@@ -1,4 +1,4 @@
-require 'downloader'
+require 'spec_helper'
 
 describe Timetable::Downloader do
   before :each do

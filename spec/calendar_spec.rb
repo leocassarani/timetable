@@ -1,4 +1,4 @@
-require 'calendar'
+require 'spec_helper'
 
 describe Timetable do
   describe ".new_year?" do

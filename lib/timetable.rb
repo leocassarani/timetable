@@ -3,6 +3,7 @@ require 'haml'
 require 'json'
 require 'yaml'
 require_relative 'calendar'
+require_relative 'config'
 require_relative 'preset'
 
 module Timetable

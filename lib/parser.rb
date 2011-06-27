@@ -126,7 +126,8 @@ module Timetable
     def parse_info(info)
       # Match strings like "LEC (2-6)"
       if info =~ /(\w+) \((\d{1,2})-(\d{1,2})\)/
-        type, weeks = $1, $2..$3
+        type = $1
+        weeks = $2.to_i..$3.to_i
         [type, weeks]
       end
     end

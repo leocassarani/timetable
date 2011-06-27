@@ -1,6 +1,4 @@
 require 'digest/sha1'
-require 'yaml'
-require_relative 'database'
 
 module Timetable
   class Preset
@@ -37,7 +35,7 @@ module Timetable
       # If @modules is nil, we assume the user is not ignoring anything
       return [] if @modules.nil?
 
-      mods = config("course_modules") || []
+      mods = Config.read("course_modules") || []
       mods = mods[@course] || []
       mods = mods[@year] || []
       # Convert everything to string to make sure we can compare
@@ -71,11 +69,6 @@ module Timetable
         )
       end
       db.close
-    end
-
-    def config(key)
-      @config ||= YAML.load_file("config/modules.yml")
-      @config[key]
     end
   end
 end

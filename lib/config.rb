@@ -7,8 +7,12 @@ module Timetable
     end
 
     def self.read(key)
-      @@config ||= load_config
+      reload unless defined? @@config
       @@config[key]
+    end
+
+    def self.reload
+      @@config = load_config
     end
 
     def self.load_config

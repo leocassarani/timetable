@@ -10,11 +10,14 @@ describe Timetable::Config do
         File.open(config_path, 'w') do |f|
           YAML::dump(config_data, f)
         end
+        # Force Config to reload the new file
+        Timetable::Config.reload
       end
 
       # Clean up after testing
       after :all do
         File.delete(config_path)
+        Timetable::Config.reload
       end
 
       it "returns nil for an invalid configuration key" do

@@ -1,8 +1,4 @@
 require 'icalendar'
-require 'yaml'
-require_relative 'cache'
-require_relative 'downloader'
-require_relative 'parser'
 
 module Timetable
   # Returns true if it's not August yet, as draft timetables
@@ -51,7 +47,7 @@ module Timetable
     # Checks that the parameters provided by the user are valid,
     # i.e. the course name exists and the yoe is within range
     def validate_arguments(course, yoe_text)
-      unless config("courses").has_key?(course)
+      unless Config.read("courses").has_key?(course)
         raise ArgumentError, %Q{Invalid course name "#{course}"}
       end
 
@@ -63,7 +59,7 @@ module Timetable
 
     # Returns an array with the names of the modules not taken
     def ignored_names(ignored)
-      modules = config("modules") || []
+      modules = Config.read("modules") || []
       ignored.map! { |i| modules[i] || "" }
     end
 
@@ -127,8 +123,8 @@ module Timetable
 
       # Download and parse each of the files for all the seasons
       # and week ranges we need to process
-      config("seasons").each do |season|
-        config("week_ranges").each do |weeks|
+      Config.read("seasons").each do |season|
+        Config.read("week_ranges").each do |weeks|
           data = download(season, weeks)
           parse(data)
         end
@@ -171,19 +167,7 @@ module Timetable
 
     # Returns true if @course_id is a single-year course
     def masters_course
-      config("course_ids")[course].count == 1
-    end
-
-    def config(key)
-      @config ||= load_config
-      @config[key]
-    end
-
-    # Loads all the configuration files into a hash and returns it
-    def load_config
-      config = {}
-      config.merge!(YAML.load_file("config/timetable.yml"))
-      config.merge!(YAML.load_file("config/modules.yml"))
+      Config.read("course_ids")[course].count == 1
     end
 
     # Returns the range of valid years of entry
@@ -198,11 +182,11 @@ module Timetable
     end
 
     def course_name
-      config("courses")[course] || ""
+      Config.read("courses")[course] || ""
     end
 
     def course_id
-      ids = config("course_ids")[course]
+      ids = Config.read("course_ids")[course]
       return if ids.nil?
       ids[@course_year]
     end

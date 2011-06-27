@@ -2,9 +2,15 @@ require 'sinatra/base'
 require 'haml'
 require 'json'
 require 'yaml'
-require_relative 'calendar'
-require_relative 'config'
-require_relative 'preset'
+
+$LOAD_PATH << File.dirname(__FILE__)
+require 'cache'
+require 'calendar'
+require 'config'
+require 'database'
+require 'downloader'
+require 'parser'
+require 'preset'
 
 module Timetable
   class Application < Sinatra::Base
@@ -13,9 +19,9 @@ module Timetable
     set :haml, :format => :html5
 
     get '/' do
-      @courses = config("courses")
-      @modules = config("modules")
-      @course_modules = config("course_modules")
+      @courses = Config.read("courses")
+      @modules = Config.read("modules")
+      @course_modules = Config.read("course_modules")
       @course_years = course_years
       haml :index
     end
@@ -106,23 +112,10 @@ module Timetable
       calendar.to_ical
     end
 
-    # Returns the configuration value for a given key
-    def config(key)
-      @config ||= load_config
-      @config[key]
-    end
-
-    # Loads all the configuration files into a hash and returns it
-    def load_config
-      config = {}
-      config.merge!(YAML.load_file("config/timetable.yml"))
-      config.merge!(YAML.load_file("config/modules.yml"))
-    end
-
     # Returns a hash containing an array of valid years for every
     # course ID, e.g. "comp" => [1,2,3,4], "ee" => [3,4]
     def course_years
-      config("course_ids").inject({}) do |memo, (k, v)|
+      Config.read("course_ids").inject({}) do |memo, (k, v)|
         memo.merge({k => v.keys})
       end
     end

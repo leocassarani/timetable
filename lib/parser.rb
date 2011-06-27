@@ -139,7 +139,7 @@ module Timetable
 
     def parse_locations(locations)
       return [] if locations.nil?
-      locations.split(', ')
+      locations.split(',')
     end
   end
 end

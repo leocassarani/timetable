@@ -1,15 +1,11 @@
 require 'sinatra/base'
 require 'haml'
 require 'json'
-require 'yaml'
 
 $LOAD_PATH << File.dirname(__FILE__)
 require 'cache'
 require 'calendar'
 require 'config'
-require 'database'
-require 'downloader'
-require 'parser'
 require 'preset'
 require 'time_helper'
 
@@ -65,7 +61,7 @@ module Timetable
     # Match routes corresponding to a given preset
     get '/:preset' do
       preset = Preset.find(params[:preset])
-      if preset.nil?
+      unless preset
         return error 404, "Calendar preset not found"
       end
       show_ical(preset["course"], preset["yoe"], preset["ignored"])
@@ -118,7 +114,7 @@ module Timetable
       rescue ArgumentError => e
         return error 404, e.message
       end
-      headers "Content-Type" => "text/plain"
+      headers "Content-Type" => "text/calendar"
       calendar.to_ical
     end
   end

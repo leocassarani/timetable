@@ -70,21 +70,24 @@ module Timetable
     end
 
     def format_attendees(data)
-      data[:attendees].flatten.join(', ')
+      data[:attendees].join(', ')
     end
 
     def format_location(data)
-      locations = data[:locations].clone
+      locations = data[:locations]
+      return "" if locations.nil? || locations.empty?
+
       # If all the room names are numeric, then append "Room(s)"
       # to the beginning of the list
-      if locations.all? { |loc| loc.integer? }
+      if locations.all?(&:integer?)
         prefix = String.pluralize(locations.count, "Room") + ' '
       else
         # Otherwise, add "Room" in front of the numeric room names
         # and keep the non-numeric ones unaltered
         locations.map! { |loc| loc.integer? ? "Room #{loc}" : loc }
       end
-      (prefix or '') + location.join(', ')
+
+      (prefix or '') + locations.join(', ')
     end
 
     # Attempts to merge an event with the previously occurring one,

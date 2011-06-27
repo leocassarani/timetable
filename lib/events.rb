@@ -15,7 +15,6 @@ module Timetable
     def initialize(calendar)
       @calendar = calendar
       @events = []
-      @duplicates = Hash.new([])
       @uid = 1
     end
 
@@ -88,6 +87,8 @@ module Timetable
       (prefix or '') + location.join(', ')
     end
 
+    # Attempts to merge an event with the previously occurring one,
+    # as in the case of a 2+ hour lecture
     def attempt_merge(event, week, day, time)
       merged = false
 
@@ -96,8 +97,8 @@ module Timetable
 
       previous.each do |prev|
         if prev.summary == event.summary
-          # If the two events are the same (e.g. 2-hour lecture),
-          # merge them into a single event spanning multiple hours
+          # If the two events have the same summary merge them
+          # into a single event spanning multiple hours
           prev.end = event.end
           register_event(event.start, prev)
           merged = true

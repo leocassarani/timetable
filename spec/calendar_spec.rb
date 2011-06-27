@@ -37,6 +37,4 @@ describe Timetable::Calendar do
       calendar.should raise_error(ArgumentError)
     end
   end
-
-  context "parsing"
 end

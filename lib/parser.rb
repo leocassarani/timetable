@@ -133,7 +133,7 @@ module Timetable
     def parse_attendees(attendees)
       return [] if attendees.nil?
       # Match strings like "ajf (2-6)"
-      attendees = attendees.scan(/([\w-']+) \([-0-9]{3,5}\)/)
+      attendees = attendees.scan(/([\w\-']+) \([-0-9]{3,5}\)/)
       attendees.flatten
     end
 

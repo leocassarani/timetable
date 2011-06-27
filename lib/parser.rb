@@ -17,6 +17,7 @@ module Timetable
 
       find_week_range
       find_week_start
+      parse_cells
     end
 
   private
@@ -63,6 +64,83 @@ module Timetable
       week_start = DateTime.strptime(start_text, "%a %d %b, %Y")
 
       delegate(:process_week_start, week_start)
+    end
+
+    def parse_cells
+      cells = find_cells
+
+      day = time = 0
+
+      cells.each do |cell|
+        # Reset day and time if it's a horizontal heading (e.g. "0900")
+        if cell =~ /^(\d{2})00$/
+          day = 0
+          time = $1.to_i
+          next
+        end
+
+        # Move on if the cell is empty or just a newline
+        unless cell.empty? || cell == "<br />"
+          lines = cell.split("<br />").delete_if(&:empty?)
+          # Each event is made up of two lines, so we take them both
+          lines.each_slice(2) do |event|
+            parse_event(event, day, time)
+          end
+        end
+
+        day += 1
+      end
+
+      delegate(:parsing_ended)
+    end
+    
+    # Retrieves an array of the textual contents of the table cells
+    def find_cells
+      @doc ||= Hpricot(input)
+      cells = @doc.search("table/tbody/tr/td/font")
+      cells.map!(&:inner_html)
+    end
+
+    def parse_event(event, day, time)
+      # Grab the title from event[0], metadata from event[1]
+      title, extra = event
+      title.gsub!("&amp;", "&")
+      info, attendees, locations = extra.split(" / ")
+
+      type, weeks = parse_info(info)
+      attendees = parse_attendees(attendees)
+      locations = parse_locations(locations)
+
+      event = {
+        :day => day,
+        :time => time,
+        :name => title,
+        :type => type,
+        :weeks => weeks,
+        :attendees => attendees,
+        :locations => locations
+      }
+      delegate(:process_event, event)
+    end
+
+    def parse_info(info)
+      # Match strings like "LEC (2-6)"
+      if info =~ /(\w+) \((\d{1,2})-(\d{1,2})\)/
+        type, weeks = $1, $2..$3
+        [type, weeks]
+      end
+    end
+
+    def parse_attendees(attendees)
+      return [] if attendees.nil?
+      # Match strings like "ajf (2-6)"
+      attendees = attendees.scan(/([\w-']+) \([-0-9]{3,5}\)/)
+      attendees.flatten
+    end
+
+    def parse_locations(locations)
+      return [] if locations.nil?
+      locations.split(', ')
     end
   end
 end

@@ -65,7 +65,7 @@ describe Timetable::Parser do
       it "calls process_event once with the event data" do
         event = {
           :day => 2,
-          :timeslot => 1,
+          :time => 10,
           :name => "Programming",
           :type => "LEC",
           :weeks => 1..1,
@@ -83,7 +83,7 @@ describe Timetable::Parser do
       it "calls process_event once with the event data" do
         event = {
           :day => 2,
-          :timeslot => 1,
+          :time => 10,
           :name => "Programming",
           :type => "LEC",
           :weeks => 2..6,
@@ -101,7 +101,7 @@ describe Timetable::Parser do
       it "calls process_event twice with different data" do
         first = {
           :day => 3,
-          :timeslot => 5,
+          :time => 14,
           :name => "Discrete Mathematics I",
           :type => "LEC",
           :weeks => 3..3,
@@ -126,14 +126,14 @@ describe Timetable::Parser do
       it "calls process_event twice with a different timeslot value" do
         first = {
           :day => 2,
-          :timeslot => 0,
+          :time => 9,
           :name => "Programming",
           :type => "LEC",
           :weeks => 2..2,
           :attendees => ["ajf"],
           :locations => ["308"]
         }
-        second = first.merge(:timeslot => 1)
+        second = first.merge(:time => 10)
         delegate.should_receive(:process_event).with(first)
         delegate.should_receive(:process_event).with(second)
         parser.parse(timetable)
@@ -146,7 +146,7 @@ describe Timetable::Parser do
       it "calls process_event twice with the correct data" do
         first = {
           :day => 2,
-          :timeslot => 0,
+          :time => 9,
           :name => "Programming",
           :type => "LEC",
           :weeks => 2..2,
@@ -155,7 +155,7 @@ describe Timetable::Parser do
         }
         second = {
           :day => 3,
-          :timeslot => 5,
+          :time => 14,
           :name => "Mathematical Methods",
           :type => "LEC",
           :weeks => 2..4,
@@ -173,6 +173,16 @@ describe Timetable::Parser do
       event = {
         :attendees => ["ajf", "tora"],
         :locations => ["344", "343", "219"]
+      }
+      delegate.should_receive(:process_event).with(hash_including(event))
+      parser.parse(timetable)
+    end
+
+    it "parses events with no attendees or locations correctly" do
+      timetable = sample_data("no_attendees_locations.html")
+      event = {
+        :attendees => [],
+        :locations => []
       }
       delegate.should_receive(:process_event).with(hash_including(event))
       parser.parse(timetable)

@@ -4,6 +4,7 @@ require 'icalendar'
 module Timetable
   class Events
     attr_reader :events
+    alias :all :events
 
     EVENT_TYPES = {
       "LEC" => "Lecture",

@@ -24,11 +24,11 @@ describe Timetable::Parser do
       let(:timetable) { sample_data("empty.html") }
 
       it "parses weeks range and dates then terminates" do
-        delegate.should_receive(:process_week_range)
-        delegate.should_receive(:process_week_start)
-        delegate.should_receive(:process_week_end)
-        delegate.should_receive(:parsing_ended)
-
+        delegate.should_receive(:process_week_range).ordered
+        delegate.should_receive(:process_week_start).ordered
+        delegate.should_not_receive(:process_event)
+        # Use .ordered to make sure parsing_ended is at the end
+        delegate.should_receive(:parsing_ended).ordered
         parser.parse(timetable)
       end
     end
@@ -82,12 +82,12 @@ describe Timetable::Parser do
           :attendees => ["yg"],
           :locations => ["308"]
         }
-        second = first.merge (
+        second = first.merge ({
           :name => "Mathematical Methods",
           :type => "LEC",
           :weeks => 2..2,
           :attendees => ["jb"]
-        )
+        })
         delegate.should_receive(:process_event).with(first)
         delegate.should_receive(:process_event).with(second)
         parser.parse(timetable)
@@ -112,6 +112,44 @@ describe Timetable::Parser do
         delegate.should_receive(:process_event).with(second)
         parser.parse(timetable)
       end
+    end
+
+    context "given two unrelated events" do
+      let(:timetable) { sample_data("two_events.html") }
+
+      it "calls process_event twice with the correct data" do
+        first = {
+          :day => 2,
+          :timeslot => 0,
+          :name => "Programming",
+          :type => "LEC",
+          :weeks => 2..2,
+          :attendees => ["ajf"],
+          :locations => ["308"]
+        }
+        second = {
+          :day => 3,
+          :timeslot => 5,
+          :name => "Mathematical Methods",
+          :type => "LEC",
+          :weeks => 2..4,
+          :attendees => ["jb"],
+          :locations => ["308"]
+        }
+        delegate.should_receive(:process_event).with(first)
+        delegate.should_receive(:process_event).with(second)
+        parser.parse(timetable)
+      end
+    end
+
+    it "correctly parses multiple attendees and locations" do
+      timetable = sample_data("multiple_attendees_locations.html")
+      event = {
+        :attendees => ["ajf", "tora"],
+        :locations => ["344", "343", "219"]
+      }
+      delegate.should_receive(:process_event).with(hash_including(event))
+      parser.parse(timetable)
     end
   end
 end

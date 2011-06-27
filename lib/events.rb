@@ -68,6 +68,7 @@ module Timetable
       # Only add the non-empty event type if it's not contained in the
       # summary already - e.g. "Laboratory I", not "Laboratory I (Lab)"
       summary += " (#{type})" unless type.empty? || summary.include?(type)
+      summary
     end
 
     def format_attendees(data)

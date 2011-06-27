@@ -12,6 +12,4 @@ gem "sinatra", "~> 1.2.2"
 gem "shotgun"
 gem "rack", "~> 1.2.2"
 
-group :test do
-  gem "rspec"
-end
+gem "rspec"

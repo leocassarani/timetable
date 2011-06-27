@@ -33,6 +33,32 @@ describe Timetable::Parser do
       end
     end
 
+    context "given a single-week range" do
+      let(:timetable) { sample_data("1_1_1.html") }
+
+      it "parses it correctly" do
+        delegate.should_receive(:process_week_range).with(1..1)
+        parser.parse(timetable)
+      end
+    end
+
+    context "given a multiple-week range" do
+      let(:timetable) { sample_data("1_2_11.html") }
+
+      it "parses it correctly" do
+        delegate.should_receive(:process_week_range).with(2..11)
+        parser.parse(timetable)
+      end
+    end
+
+    it "parses week start dates correctly" do
+      timetable = sample_data("1_1_1.html")
+      week_start = DateTime.civil(2010, 10, 4)
+      delegate.should_receive(:process_week_start).with(week_start)
+
+      parser.parse(timetable)
+    end
+
     context "given a timetable with a single event" do
       let(:timetable) { sample_data("single.html") }
 
@@ -142,7 +168,7 @@ describe Timetable::Parser do
       end
     end
 
-    it "correctly parses multiple attendees and locations" do
+    it "parses multiple attendees and locations correctly" do
       timetable = sample_data("multiple_attendees_locations.html")
       event = {
         :attendees => ["ajf", "tora"],

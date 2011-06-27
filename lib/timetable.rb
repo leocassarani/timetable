@@ -22,7 +22,6 @@ module Timetable
       @courses = Config.read("courses")
       @modules = Config.read("modules")
       @course_modules = Config.read("course_modules")
-      @course_years = course_years
       haml :index
     end
 
@@ -76,6 +75,14 @@ module Timetable
     end
 
     helpers do
+      # Returns a hash containing an array of valid years for every
+      # course ID, e.g. "comp" => [1,2,3,4], "ee" => [3,4]
+      def course_years
+        Config.read("course_ids").inject({}) do |memo, (k, v)|
+          memo.merge({k => v.keys})
+        end
+      end
+
       # Given a number, returns a string with the number followed
       # by its ordinal suffix. E.g. 1 is "1st". Only works in the
       # 0-20 range, which is more than enough for what we need
@@ -110,14 +117,6 @@ module Timetable
       end
       headers "Content-Type" => "text/plain"
       calendar.to_ical
-    end
-
-    # Returns a hash containing an array of valid years for every
-    # course ID, e.g. "comp" => [1,2,3,4], "ee" => [3,4]
-    def course_years
-      Config.read("course_ids").inject({}) do |memo, (k, v)|
-        memo.merge({k => v.keys})
-      end
     end
   end
 end

@@ -81,7 +81,7 @@ module Timetable
           return true
         end
       rescue
-        return nil
+        return
       end
     end
 

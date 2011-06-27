@@ -22,7 +22,7 @@ module Timetable
         @data = open(url).read
       rescue OpenURI::HTTPError
         # We ignore HTTP errors, and so will the parser
-        return nil
+        return
       end
       @data
     end

@@ -7,6 +7,8 @@ module Timetable
     COLLECTION = "presets"
 
     def self.find(name)
+      return if ENV["RACK_ENV"] == 'test'
+
       db = DatabaseConnection.new(COLLECTION)
       preset = db.find("name" => name)
       db.close
@@ -57,7 +59,7 @@ module Timetable
     # Checks whether the preset is already present in our MongoHQ
     # instance, and saves it to the database if it isn't
     def save_to_database
-      return if @name.nil?
+      return if ENV['RACK_ENV'] == 'test' || @name.nil?
       db = DatabaseConnection.new(COLLECTION)
       # Only insert if the record doesn't exist already
       unless db.exists?("name" => @name)

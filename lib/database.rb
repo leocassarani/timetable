@@ -16,7 +16,8 @@ module Timetable
         # use @coll to retrieve, find and insert entries
         @coll = db.collection(collection)
       else
-        raise RuntimeError, "Invalid database configuration"
+        local = "mongodb://localhost:27017"
+        @conn = Mongo::Connection.from_uri(local).db('timetable')
       end
     end
 

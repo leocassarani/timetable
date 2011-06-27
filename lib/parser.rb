@@ -22,6 +22,8 @@ module Timetable
 
   private
 
+    # Checks if the delegate responds to a method,
+    # and if so calls it with the given arguments
     def delegate(method, *args)
       if @delegate.respond_to?(method)
         @delegate.send(method, *args)
@@ -54,10 +56,6 @@ module Timetable
       tag = @doc.at("body/font")
       return if tag.nil?
       start_text = tag.inner_html
-
-      # Retrieve the number of the week the calendar starts on
-      @week_no = start_text.scan(/Week (\d+) start date/)
-      @week_no = @week_no.flatten.first.to_i
 
       # Retrieve text of the form "Monday 11 October, 2010"
       start_text = start_text.scan(/\w+ \d{1,2} \w+, \d{4}$/).first

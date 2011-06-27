@@ -6,7 +6,7 @@
     document.getElementById("yoe").onchange = populateModules;
   }
 
-  year = #{Timetable::academic_year};
+  year = #{academic_year};
   courseYears = #{course_years.to_json};
   modules = #{@modules.to_json};
   course_mods = #{@course_modules.to_json};

@@ -11,9 +11,12 @@ require 'database'
 require 'downloader'
 require 'parser'
 require 'preset'
+require 'time_helper'
 
 module Timetable
   class Application < Sinatra::Base
+    include TimeHelper
+
     # Set the parent directory of this file as the project root
     set :root, File.dirname(File.dirname(__FILE__))
     set :haml, :format => :html5
@@ -32,7 +35,7 @@ module Timetable
     post '/install' do
       # Convert year of entry into course year
       yoe = params[:yoe].to_i
-      year = Timetable::course_year(yoe)
+      year = course_year(yoe)
 
       # Remove the values for the dropdown menus and the submit button
       # from the params hash to get the modules chosen by the user
@@ -95,7 +98,7 @@ module Timetable
       # year (as a number), so that 1 corresponds to the current
       # academic year, 2 to last year, etc
       def year_to_yoe(year)
-        Timetable::academic_year - year + 1
+        academic_year - year + 1
       end
 
       # Returns the URL of the install guide picture for a given

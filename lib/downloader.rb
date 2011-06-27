@@ -4,7 +4,6 @@ module Timetable
   REMOTE_HOST = "www.doc.ic.ac.uk"
   REMOTE_PATH = "internal/timetables/timetable/:season/class"
   REMOTE_FILE = ":course_:start_:end.htm"
-  REMOTE_URL = "http://#{REMOTE_HOST}/#{REMOTE_PATH}/#{REMOTE_FILE}"
 
   class Downloader
     attr_accessor :course_id, :season, :weeks
@@ -35,7 +34,7 @@ module Timetable
 
       # Somewhat surprisingly, if we don't clone the constant
       # then the calls to gsub! will actually change its value
-      result = REMOTE_URL.clone
+      result = "http://#{REMOTE_HOST}/#{REMOTE_PATH}/#{REMOTE_FILE}"
       result.gsub!(':season', season.to_s)
       result.gsub!(':course', course_id.to_s)
       result.gsub!(':start', weeks.first.to_s)

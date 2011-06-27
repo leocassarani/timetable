@@ -1,52 +1,40 @@
 require 'icalendar'
+require 'events'
+require 'time_helper'
 
 module Timetable
-  # Returns true if it's not August yet, as draft timetables
-  # are usually published in the first weeks of August
-  def self.new_year?
-    Time.now.month < 8
-  end
-
-  # Returns the current year, adjusted as per self.new_year?
-  def self.academic_year
-    Time.now.year - (new_year? ? 1 : 0)
-  end
-
-  # Computes the course year given the year of entry, e.g. in autumn
-  # 2010 students who entered the course in 2008 are in year 3
-  def self.course_year(yoe)
-    year = Timetable::academic_year - (yoe + 2000)
-    # Add one as we want to count from 1, not 0
-    year += 1
-    year
-  end
-
   class Calendar
+    include TimeHelper
+
     attr_reader :course, :yoe
 
     def initialize(course, yoe, ignored = [])
-      validate_arguments(course, yoe)
+      validate_args(course, yoe)
 
       @course = course
       @yoe = yoe.to_i
       @ignored = ignored_names(ignored)
 
-      @course_year = Timetable::course_year(yoe)
+      @course_year = course_year(yoe)
       @course_id = course_id
 
       process_all unless load_cached
-      set_calendar_name
     end
 
     def to_ical
       @cal.to_ical if @cal
     end
 
+    def parsing_ended(events)
+      @events ||= []
+      @events += events
+    end
+
   private
 
     # Checks that the parameters provided by the user are valid,
     # i.e. the course name exists and the yoe is within range
-    def validate_arguments(course, yoe_text)
+    def validate_args(course, yoe_text)
       unless Config.read("courses").has_key?(course)
         raise ArgumentError, %Q{Invalid course name "#{course}"}
       end
@@ -57,10 +45,40 @@ module Timetable
       end
     end
 
-    # Returns an array with the names of the modules not taken
-    def ignored_names(ignored)
-      modules = Config.read("modules") || []
-      ignored.map! { |i| modules[i] || "" }
+    # Downloads and parses all the necessary files, then saves it all
+    # to cache and applies preset options
+    def process_all
+      init_calendar
+      @events = []
+      @uid = 1
+
+      # Download and parse each of the files for all the seasons
+      # and week ranges we need to process
+      Config.read("seasons").each do |season|
+        Config.read("week_ranges").each do |weeks|
+          data = download(season, weeks)
+          parse(data)
+        end
+      end
+
+      # Save the parsed events to cache to speed up future requests
+      Cache.save(@course_id, @events)
+
+      apply_preset(@events)
+
+      # Add the events to the iCalendar, now that ignored courses
+      # have been pruned
+      @events.each { |event| @cal.add_event(event) }
+    end
+
+    def parse(data)
+      @parser ||= Parser.new(Events.new(self))
+      @parser.parse(data)
+    end
+
+    def download(season, weeks)
+      downloader = Downloader.new(@course_id, season, weeks)
+      downloader.download
     end
 
     # Attempts to load the cached copy of the parsed timetable files
@@ -69,11 +87,7 @@ module Timetable
         if Cache.has?(@course_id)
           events = Cache.get(@course_id)
 
-          # Initialise @cal as an empty Icalendar::Calendar instance
           init_calendar
-
-          # Add all cached events to our (empty) calendar, unless they
-          # relate to a module that's in the ignored list
           events.each do |e|
             @cal.add_event(e) unless should_ignore(e)
           end
@@ -81,19 +95,26 @@ module Timetable
           return true
         end
       rescue
-        return
       end
     end
 
-    # Initialises an empty calendar and saves it to the @cal instance var
+    # Initialises an empty calendar
     def init_calendar
       @cal = Icalendar::Calendar.new
       @cal.prodid = "DoC Timetable"
-      set_timezones
+      set_calendar_name
+      set_calendar_timezones
+    end
+
+    # Sets the default name for the output calendar
+    def set_calendar_name
+      calname = course_name
+      calname += " Year #{@course_year}" unless masters_course?
+      @cal.custom_property("X-WR-CALNAME", calname)
     end
 
     # Sets the two timezones (DST and standard) for @cal to use
-    def set_timezones
+    def set_calendar_timezones
       @cal.timezone do
         timezone_id "Europe/London"
 
@@ -115,70 +136,30 @@ module Timetable
       end
     end
 
-    # Downloads and parses all the necessary files, then saves it all
-    # to cache and applies preset options
-    def process_all
-      # Initialise an empty calendar in @cal
-      init_calendar
-
-      # Download and parse each of the files for all the seasons
-      # and week ranges we need to process
-      Config.read("seasons").each do |season|
-        Config.read("week_ranges").each do |weeks|
-          data = download(season, weeks)
-          parse(data)
-        end
+    # Prunes events that relate to courses ignored by the preset
+    def apply_preset
+      remove = @events.inject([]) do |remove, event|
+        should_ignore(event) ? remove + event : remove
       end
+      remove.each { |event| @events.delete(event) }
+    end
 
-      # Save the parsed events to cache to speed up future requests
-      Cache.save(@course_id, @cal.events)
-
-      # Apply the preset options by hiding ignored modules - we have to
-      # do this in a slightly roundabout way because it wouldn't be safe
-      # to remove events while they're being iterated upon
-      remove = []
-      @cal.events.each { |e| remove << e if should_ignore(e) }
-      remove.each { |e| @cal.remove_event(e) }
+    # Returns an array with the names of the modules not taken
+    def ignored_names(ignored)
+      modules = Config.read("modules") || []
+      ignored.map! { |i| modules[i] || "" }
     end
 
     # Returns true if a given event should be ignored, that is if
     # its #summary string attribute starts with the name of one of
     # the modules the user isn't taking
-    def should_ignore(e)
-      @ignored.any? { |ign| e.summary =~ /^#{ign}/i }
-    end
-
-    def download(season, weeks)
-      downloader = Downloader.new(@course_id, season, weeks)
-      downloader.download
-    end
-
-    def parse(data)
-      parser = Parser.new(data)
-      @cal = parser.parse(@cal)
-    end
-
-    # Sets the default name for the output calendar
-    def set_calendar_name
-      calname = course_name
-      calname += " Year #{@course_year}" unless masters_course
-      @cal.custom_property("X-WR-CALNAME", calname)
+    def should_ignore(event)
+      @ignored.any? { |ign| event.summary =~ /^#{ign}/i }
     end
 
     # Returns true if @course_id is a single-year course
-    def masters_course
+    def masters_course?
       Config.read("course_ids")[course].count == 1
-    end
-
-    # Returns the range of valid years of entry
-    def valid_years
-      now = Time.now
-
-      # Get the current year in double digits (e.g. 11 for 2011)
-      range_end = Timetable::academic_year - 2000
-      range_start = range_end - 3
-
-      range_start..range_end
     end
 
     def course_name

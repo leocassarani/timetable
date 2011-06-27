@@ -1,21 +1,5 @@
 require 'spec_helper'
 
-describe Timetable do
-  describe ".new_year?" do
-    it "returns true if we're past August, false otherwise" do
-      Timetable::new_year?.should == Time.now.month < 8
-    end
-  end
-
-  describe ".academic_year" do
-    it "returns the current academic year" do
-      year = Time.now.year
-      year -= 1 if Timetable::new_year?
-      Timetable::academic_year.should == year
-    end
-  end
-end
-
 describe Timetable::Calendar do
   context "detecting bad parameters" do
     it "raises an ArgumentError given a nil course name" do
@@ -53,4 +37,6 @@ describe Timetable::Calendar do
       calendar.should raise_error(ArgumentError)
     end
   end
+
+  context "parsing"
 end

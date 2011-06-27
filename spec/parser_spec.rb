@@ -16,7 +16,7 @@ describe Timetable::Parser do
     end
 
     it "instantly terminates given no input" do
-      delegate.should_not_receive(:parsing_ended)
+      delegate.should_receive(:parsing_ended)
       parser.parse(nil)
     end
 

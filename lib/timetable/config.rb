@@ -3,7 +3,7 @@ require 'yaml'
 module Timetable
   class Config
     def self.path
-      File.join(File.dirname(File.dirname(__FILE__)), "config")
+      File.join(File.dirname(File.dirname(File.dirname(__FILE__))), "config")
     end
 
     def self.read(key)

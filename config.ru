@@ -1,4 +1,6 @@
 require 'bundler/setup'
-require './lib/timetable'
+
+$LOAD_PATH << File.expand_path(File.join(File.dirname(__FILE__), "lib"))
+require 'timetable'
 
 run Timetable::Application

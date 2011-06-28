@@ -1,6 +1,5 @@
 require 'active_support/core_ext'
 require 'icalendar'
-require 'database'
 
 module Timetable
   class Cache

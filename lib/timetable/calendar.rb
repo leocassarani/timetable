@@ -1,10 +1,5 @@
 require 'icalendar'
 
-require 'downloader'
-require 'events'
-require 'parser'
-require 'time_helper'
-
 module Timetable
   class Calendar
     include TimeHelper

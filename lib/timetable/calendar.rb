@@ -32,7 +32,7 @@ module Timetable
       @cal.to_ical if @cal
     end
 
-    # Callback method for the {Events} class.
+    # Callback method for the {ParserDelegate} class.
     def parsing_ended(events)
       @events = events
     end
@@ -74,7 +74,7 @@ module Timetable
     end
 
     def parse(data)
-      @parser ||= Parser.new(Events.new(self))
+      @parser ||= Parser.new(ParserDelegate.new(self))
       @parser.parse(data)
     end
 

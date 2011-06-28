@@ -2,7 +2,7 @@ require 'active_support/core_ext'
 require 'icalendar'
 
 module Timetable
-  class Events
+  class ParserDelegate
     attr_reader :events
     alias :all :events
 

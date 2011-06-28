@@ -15,13 +15,13 @@ describe Timetable::ParserDelegate do
     # single has 1 event, multiline has 2
     parser.parse(sample_data("single.html"))    
     parser.parse(sample_data("multiline.html"))
-    delegate.all.should have(3).events
+    delegate.events.should have(3).events
   end
 
   it "returns an empty array given an empty timetable" do
     calendar.should_receive(:parsing_ended)
     parser.parse(sample_data("empty.html"))
-    delegate.all.should be_empty
+    delegate.events.should be_empty
   end
 
   context "given all possible inputs for the 'location' field" do
@@ -29,7 +29,7 @@ describe Timetable::ParserDelegate do
 
     it "produces a correct list of rooms for all types of locations" do
       parser.parse(data)
-      events = delegate.all
+      events = delegate.events
 
       events.sort { |a, b| a.start <=> b.start }
       locations = events.map(&:location)
@@ -50,11 +50,11 @@ describe Timetable::ParserDelegate do
     end
 
     it "creates a single event" do
-      delegate.all.should have(1).event
+      delegate.events.should have(1).event
     end
 
     it "gives the correct attributes to the event" do
-      event = delegate.all.first
+      event = delegate.events.first
 
       event.summary.should == "Programming (Lecture)"
       event.description.should == "ajf"
@@ -71,11 +71,11 @@ describe Timetable::ParserDelegate do
     end
 
     it "creates five distinct events" do
-      delegate.all.should have(5).events
+      delegate.events.should have(5).events
     end
 
     it "creates events with identical attributes" do
-      events = delegate.all
+      events = delegate.events
 
       first = events.shift
       summary = first.summary
@@ -92,7 +92,7 @@ describe Timetable::ParserDelegate do
     end
 
     it "creates events that are one week apart" do
-      events = delegate.all
+      events = delegate.events
       first = events.shift
       events.inject(first.start) do |date, event|
         event.start.should == date.advance(:weeks => 1)
@@ -108,11 +108,11 @@ describe Timetable::ParserDelegate do
     end
 
     it "creates two events" do
-      delegate.all.should have(2).events
+      delegate.events.should have(2).events
     end
 
     it "creates the events one week apart" do
-      events = delegate.all
+      events = delegate.events
       first, second = events.sort { |a, b| a.start <=> b.start }
       second.start.should == first.start.advance(:weeks => 1)
     end
@@ -125,11 +125,11 @@ describe Timetable::ParserDelegate do
     end
 
     it "creates one event only" do
-      delegate.all.should have(1).events
+      delegate.events.should have(1).events
     end
 
     it "creates a two-hour event" do
-      event = delegate.all.first
+      event = delegate.events.first
       event.end.should == event.start.advance(:hours => 2)
     end
   end
@@ -141,7 +141,7 @@ describe Timetable::ParserDelegate do
     end
 
     it "only creates the events within the range of the calendar" do
-      delegate.all.should have(5).events
+      delegate.events.should have(5).events
     end
   end
 end

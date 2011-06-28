@@ -2,9 +2,9 @@ module Timetable
   module TimeHelper
     # Return true if it's not August yet.
     #
-    # @return [TrueClass, FalseClass] A boolean value representing whether
-    #   we're currently in the period of the year before August, as new draft
-    #   timetables are usually published in the first weeks of August.
+    # @return [Boolean] A boolean value representing whether we're currently
+    #   in the period of the year before August, as new draft timetables are
+    #   usually published in the first weeks of August.
     def new_year?
       Time.now.month < 8
     end

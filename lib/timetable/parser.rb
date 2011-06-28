@@ -9,10 +9,7 @@ module Timetable
     end
 
     def parse(input)
-      unless input
-        delegate(:parsing_ended)
-        return
-      end
+      return delegate(:parsing_ended) unless input
 
       @input = input
       @doc = nil

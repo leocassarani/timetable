@@ -10,8 +10,8 @@ module Timetable
     # in the database and that record is no more than 30 minutes old.
     #
     # @param [Integer] course_id The course ID.
-    # @return [TrueClass, FalseClass] A boolean value indicating whether
-    #   the given course ID is already cached in the database.
+    # @return [Boolean] A boolean value indicating whether the given
+    #   course ID is already cached in the database.
     def self.has?(course_id)
       return false if ENV['RACK_ENV'] == 'test'
 
@@ -32,29 +32,25 @@ module Timetable
       events = Database.execute(COLLECTION) do |db|
         db.find("course_id" => course_id)["events"]
       end
-      events.map { |e| Icalendar::Event.unserialize(e) }
+      events.map { |event| Icalendar::Event.unserialize(event) }
     end
 
-    # Saves the events list for a given course_id in serialized form,
-    # as well as when the cached record was created
+    # Save the events list for a given course ID in serialized form, as well
+    # as a +created_on+ value for when the cached record was created.
+    #
+    # @param [Integer] course_id The course ID.
+    # @param [Array] events An array of {Icalendar::Event} objects to be saved
+    #   to cache.
     def self.save(course_id, events)
       return if ENV['RACK_ENV'] == 'test'
-
       doc = {
         "course_id" => course_id,
         "created_on" => Time.now,
         "events" => events.map(&:serialize)
       }
-
       Database.execute(COLLECTION) do |db|
         old = db.find("course_id" => course_id)
-        if old
-          # Update the pre-existing document
-          db.update(old, doc)
-        else
-          # Insert a new one otherwise
-          db.insert(doc)
-        end
+        old ? db.update(old, doc) : db.insert(doc)
       end
     end
   end

@@ -66,8 +66,8 @@ module Timetable
         end
       end
 
-      # Save the parsed events to cache to speed up future requests
-      Cache.save(@course_id, @events)
+      # Do nothing if saving to cache was not possible
+      Cache.save(@course_id, @events) rescue nil
 
       init_calendar
       add_to_calendar(@events)
@@ -167,8 +167,7 @@ module Timetable
 
     def course_id
       ids = Config.read("course_ids")[@course]
-      return if ids.nil?
-      ids[@course_year]
+      ids[@course_year] rescue nil
     end
   end
 end

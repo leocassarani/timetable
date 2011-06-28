@@ -9,10 +9,9 @@ module Timetable
     def self.find(name)
       return if ENV["RACK_ENV"] == 'test'
 
-      db = DatabaseConnection.new(COLLECTION)
-      preset = db.find("name" => name)
-      db.close
-      preset
+      Database.execute(COLLECTION) do |db|
+        db.find("name" => name)
+      end
     end
 
     def initialize(course, yoe, year, modules = nil)
@@ -22,19 +21,18 @@ module Timetable
       @modules = modules.map(&:to_s)
 
       @ignored = modules_ignored
-      # No point carrying on if no preset necessary
+      # Return early if the user needs no preset
       return if @ignored.empty?
 
       @name = get_preset_name
-      save_to_database
+      save
     end
 
   private
 
-    # Returns the modules that the user has chosen to ignore,
+    # Return the modules that the user has chosen to ignore,
     # given the ones they've chosen to take
     def modules_ignored
-      # If @modules is nil, we assume the user is not ignoring anything
       return [] if @modules.nil?
 
       mods = Config.read("course_modules") || []
@@ -56,21 +54,21 @@ module Timetable
       Digest::SHA1.hexdigest(salted)[0,5]
     end
 
-    # Checks whether the preset is already present in our MongoHQ
-    # instance, and saves it to the database if it isn't
-    def save_to_database
+    # Check whether the preset is already present in our MongoHQ
+    # instance, and save it to the database if it isn't
+    def save
       return if ENV['RACK_ENV'] == 'test' || @name.nil?
-      db = DatabaseConnection.new(COLLECTION)
-      # Only insert if the record doesn't exist already
-      unless db.exists?("name" => @name)
-        db.insert(
-          "name"    =>  @name,
-          "course"  =>  @course,
-          "yoe"     =>  @yoe,
-          "ignored" =>  @ignored
-        )
+
+      Database.execute(COLLECTION) do |db|
+        unless db.exists?("name" => @name)
+          db.insert(
+            "name"    =>  @name,
+            "course"  =>  @course,
+            "yoe"     =>  @yoe,
+            "ignored" =>  @ignored
+          )
+        end
       end
-      db.close
     end
   end
 end

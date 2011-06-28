@@ -58,8 +58,10 @@ end
 
 module Icalendar
   class Event
-    # Returns a hash with the essential attributes of the event,
-    # ready to be inserted into a MongoDB collection
+    # Return a hash with the essential attributes of the event, ready to be
+    # inserted into a MongoDB collection.
+    #
+    # @return [Hash] The main iCalendar attributes of the receiver.
     def serialize
       {
         "uid"         =>  uid,
@@ -71,21 +73,20 @@ module Icalendar
       }
     end
 
+    # Create a new instance of {Event} given a hash of attributes.
+    #
+    # @param [Hash] hash The desired attributes for the new event.
+    # @return [Event] An instance of {Event} generated from the given data.
     def self.unserialize(hash)
-      # Mongo doesn't support {DateTime} objects, so start and end times
-      # are serialized as {Time} objects, here we simply convert them back
+      # Mongo doesn't support DateTime objects, so start and end times
+      # are serialized as Time objects, here we simply convert them back
       hash["start"] = hash["start"].to_datetime
       hash["end"] = hash["end"].to_datetime
 
-      # Iterate over every (key, value) pair of the serialized hash
-      # and call the corresponding key= method on our newly-created
-      # {Event} object, with value as its argument. This simply populates
-      # the attributes of the event with the serialized data.
       event = Event.new
       hash.each do |key, value|
         event.send("#{key}=".to_sym, value)
       end
-
       event
     end
   end

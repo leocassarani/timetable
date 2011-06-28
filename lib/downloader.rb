@@ -16,6 +16,7 @@ module Timetable
     end
 
     def download
+      url = remote_url
       return if url.nil?
       begin
         @data = open(url).read
@@ -29,11 +30,9 @@ module Timetable
   private
 
     # Returns the URL corresponding to the input given
-    def url
+    def remote_url
       return if course_id.nil? || season.nil? || weeks.nil?
 
-      # Somewhat surprisingly, if we don't clone the constant
-      # then the calls to gsub! will actually change its value
       result = "http://#{REMOTE_HOST}/#{REMOTE_PATH}/#{REMOTE_FILE}"
       result.gsub!(':season', season.to_s)
       result.gsub!(':course', course_id.to_s)

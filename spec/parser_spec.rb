@@ -24,6 +24,7 @@ describe Timetable::Parser do
       let(:timetable) { sample_data("empty.html") }
 
       it "parses weeks range and dates then terminates" do
+        delegate.should_receive(:parsing_began).ordered
         delegate.should_receive(:process_week_range).ordered
         delegate.should_receive(:process_week_start).ordered
         delegate.should_not_receive(:process_event)

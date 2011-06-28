@@ -2,6 +2,8 @@ require 'hpricot'
 
 module Timetable
   class Parser
+    attr_accessor :delegate
+
     def initialize(delegate)
       @delegate = delegate
     end
@@ -15,9 +17,11 @@ module Timetable
       @input = input
       @doc = nil
 
+      delegate(:parsing_began)
       find_week_range
       find_week_start
       parse_cells
+      delegate(:parsing_ended)
     end
 
   private
@@ -88,8 +92,6 @@ module Timetable
 
         day += 1
       end
-
-      delegate(:parsing_ended)
     end
     
     # Retrieves an array of the textual contents of the table cells

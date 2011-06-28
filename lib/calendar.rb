@@ -29,8 +29,7 @@ module Timetable
     end
 
     def parsing_ended(events)
-      @events ||= []
-      @events += events
+      @events = events
     end
 
   private
@@ -97,6 +96,7 @@ module Timetable
           return true
         end
       rescue
+        return false
       end
     end
 

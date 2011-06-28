@@ -8,6 +8,7 @@ module Timetable
 
     # Returns whether a particular course_id is cached in our database
     def self.has?(course_id)
+      return false
       db = DatabaseConnection.new(COLLECTION)
       # Check that the right course_id exists, and that it's not too old
       retval = db.exists?(

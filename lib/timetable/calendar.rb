@@ -52,8 +52,8 @@ module Timetable
       end
     end
 
-    # Downloads and parses all the necessary files, then saves it all
-    # to cache and applies preset options
+    # Download and parse all the necessary files, then save it all
+    # to cache and apply preset options
     def process_all
       @events = []
 
@@ -83,21 +83,21 @@ module Timetable
       downloader.download
     end
 
-    # Attempts to load the cached copy of the parsed timetable files
+    # Attempt to load the cached copy of the parsed timetable files
     def load_cached
-      begin
-        if Cache.has?(@course_id)
-          events = Cache.get(@course_id)
-          init_calendar
-          add_to_calendar(events)
-          return true
-        end
-      rescue
-        return false
+      if Cache.has?(@course_id)
+        events = Cache.get(@course_id)
+        init_calendar
+        add_to_calendar(events)
+        true
+      else
+        false
       end
+    rescue
+      false
     end
 
-    # Initialises an empty calendar
+    # Initialise an empty calendar
     def init_calendar
       @cal = Icalendar::Calendar.new
       @cal.prodid = "DoC Timetable"
@@ -105,14 +105,14 @@ module Timetable
       set_calendar_timezones
     end
 
-    # Sets the default name for the output calendar
+    # Set the default name for the output calendar
     def set_calendar_name
       calname = course_name
       calname += " Year #{@course_year}" unless masters_course?
       @cal.custom_property("X-WR-CALNAME", calname)
     end
 
-    # Sets the two timezones (DST and standard) for @cal to use
+    # Set the two timezones (DST and standard) for @cal to use
     def set_calendar_timezones
       @cal.timezone do
         timezone_id "Europe/London"
@@ -143,20 +143,20 @@ module Timetable
       end
     end
 
-    # Returns an array with the names of the modules not taken
+    # Return an array with the names of the modules not taken
     def ignored_names(ignored)
       modules = Config.read("modules") || []
       ignored.map { |i| modules[i] || "" }
     end
 
-    # Returns true if a given event should be ignored, that is if
+    # Return true if a given event should be ignored, that is if
     # its #summary string attribute starts with the name of one of
     # the modules the user isn't taking
     def should_ignore(event)
       @ignored.any? { |ign| event.summary =~ /^#{ign}/i }
     end
 
-    # Returns true if @course_id is a single-year course
+    # Return true if @course_id is a single-year course
     def masters_course?
       Config.read("course_ids")[@course].count == 1
     end

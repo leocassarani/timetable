@@ -51,9 +51,7 @@ module Timetable
     # Downloads and parses all the necessary files, then saves it all
     # to cache and applies preset options
     def process_all
-      init_calendar
       @events = []
-      @uid = 1
 
       # Download and parse each of the files for all the seasons
       # and week ranges we need to process
@@ -67,10 +65,11 @@ module Timetable
       # Save the parsed events to cache to speed up future requests
       Cache.save(@course_id, @events)
 
-      apply_preset(@events)
+      # Prune the events by removing the ones excluded by the preset
+      apply_preset
 
-      # Add the events to the iCalendar, now that ignored courses
-      # have been pruned
+      # Add the filtered events to the iCalendar
+      init_calendar
       @events.each { |event| @cal.add_event(event) }
     end
 

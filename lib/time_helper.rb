@@ -1,33 +1,39 @@
 module Timetable
   module TimeHelper
-    # Returns true if it's not August yet, as draft timetables
-    # are usually published in the first weeks of August
+    # Return true if it's not August yet.
+    #
+    # @return [TrueClass, FalseClass] A boolean value representing whether
+    #   we're currently in the period of the year before August, as new draft
+    #   timetables are usually published in the first weeks of August.
     def new_year?
       Time.now.month < 8
     end
 
-    # Returns the current year, adjusted as per self.new_year?
+    # Return the current academic year.
+    #
+    # @return [Integer] The academic year currently in progress: the one
+    #   that started last year if it's not August yet, or the one that
+    #   started this year if we're past August.
     def academic_year
       Time.now.year - (new_year? ? 1 : 0)
     end
 
-    # Computes the course year given the year of entry, e.g. in autumn
-    # 2010 students who entered the course in 2008 are in year 3
+    # Compute the course year given the year of entry, e.g. in autumn
+    # 2010 students who entered the course in 2008 are in year 3.
+    #
+    # @param [Integer] yoe A year of entry expressed as double digits.
+    # @return [Integer] The course year that currently corresponds to
+    #   the given year of entry.
     def course_year(yoe)
-      year = academic_year - (yoe + 2000)
-      # Add one as we want to count from 1, not 0
-      year += 1
-      year
+      academic_year - (yoe + 2000) + 1
     end
 
-    # Returns the range of valid years of entry
+    # Return the range of currently valid years of entry.
+    #
+    # @return [Range] A range of valid years of entry, as double digits.
     def valid_years
-      now = Time.now
-
-      # Get the current year in double digits (e.g. 11 for 2011)
       range_end = academic_year - 2000
       range_start = range_end - 3
-
       range_start..range_end
     end
   end

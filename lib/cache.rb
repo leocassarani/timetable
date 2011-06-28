@@ -8,6 +8,8 @@ module Timetable
 
     # Returns whether a particular course_id is cached in our database
     def self.has?(course_id)
+      return false if ENV['RACK_ENV'] == 'test'
+
       db = DatabaseConnection.new(COLLECTION)
       # Check that the right course_id exists, and that it's not too old
       retval = db.exists?(
@@ -30,6 +32,8 @@ module Timetable
     # Saves the events list for a given course_id in serialized form,
     # as well as when the cached record was created
     def self.save(course_id, events)
+      return if ENV['RACK_ENV'] == 'test'
+
       doc = {
         "course_id" => course_id,
         "created_on" => Time.now,

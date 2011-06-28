@@ -37,4 +37,39 @@ describe Timetable::Calendar do
       calendar.should raise_error(ArgumentError)
     end
   end
+
+  context "excluding ignored modules" do
+    let(:course) { "comp" }
+    let(:year) { 2 }
+    let(:yoe) do
+      helper = Object.new.extend(Timetable::TimeHelper)
+      helper.valid_years.to_a[-year]
+    end
+    let(:modules) { Timetable::Config.read("course_modules")[course][year] }
+    let(:names) { modules.map { |m| Timetable::Config.read("modules")[m] } }
+
+    context "given no ignored modules" do
+      let(:calendar) { Timetable::Calendar.new(course, yoe, []) }
+
+      it "returns a calendar containing events relating to those modules" do
+        calendar.cal.events.any? do |event|
+          names.any? do |name|
+            event.summary =~ /^#{name}/i
+          end
+        end.should be_true
+      end
+    end
+
+    context "given a list of ignored modules" do
+      let(:calendar) { Timetable::Calendar.new(course, yoe, modules) }
+
+      it "returns a calendar with no events relating to those modules" do
+        calendar.cal.events.each do |event|
+          names.each do |name|
+            event.summary.should_not match(/^#{name}/i)
+          end
+        end
+      end
+    end
+  end
 end

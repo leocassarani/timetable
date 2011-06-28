@@ -9,8 +9,14 @@ module Timetable
   class Calendar
     include TimeHelper
 
-    attr_reader :course, :yoe
+    attr_reader :cal
 
+    # Create the calendar object for a single course ID.
+    #
+    # @param [String] course The name of the user's course.
+    # @param [String, Integer] yoe The user's year of entry.
+    # @param [Array] ignored An array of strings, each of which corresponds
+    #   to the code of a module the user isn't taking (e.g. "210").
     def initialize(course, yoe, ignored = [])
       validate_args(course, yoe)
 
@@ -24,18 +30,22 @@ module Timetable
       process_all unless load_cached
     end
 
+    # Convert the output calendar to iCalendar format.
+    #
+    # @return [Icalendar::Calendar] The calendar in iCalendar format.
     def to_ical
       @cal.to_ical if @cal
     end
 
+    # Callback method for the {Events} class.
     def parsing_ended(events)
       @events = events
     end
 
   private
 
-    # Checks that the parameters provided by the user are valid,
-    # i.e. the course name exists and the yoe is within range
+    # Check that the parameters provided by the user are valid,
+    # i.e. the course name exists and the year of entry is within range
     def validate_args(course, yoe_text)
       unless Config.read("courses").has_key?(course)
         raise ArgumentError, %Q{Invalid course name "#{course}"}
@@ -64,12 +74,8 @@ module Timetable
       # Save the parsed events to cache to speed up future requests
       Cache.save(@course_id, @events)
 
-      # Prune the events by removing the ones excluded by the preset
-      apply_preset
-
-      # Add the filtered events to the iCalendar
       init_calendar
-      @events.each { |event| @cal.add_event(event) }
+      add_to_calendar(@events)
     end
 
     def parse(data)
@@ -87,12 +93,8 @@ module Timetable
       begin
         if Cache.has?(@course_id)
           events = Cache.get(@course_id)
-
           init_calendar
-          events.each do |e|
-            @cal.add_event(e) unless should_ignore(e)
-          end
-
+          add_to_calendar(events)
           return true
         end
       rescue
@@ -138,18 +140,18 @@ module Timetable
       end
     end
 
-    # Prunes events that relate to courses ignored by the preset
-    def apply_preset
-      remove = @events.inject([]) do |remove, event|
-        should_ignore(event) ? remove + event : remove
+    # Filter the events and add them to the output Icalendar object.
+    # @param [Array] events An array of Icalendar::Event instances.
+    def add_to_calendar(events)
+      events.each do |event|
+         @cal.add_event(event) unless should_ignore(event)
       end
-      remove.each { |event| @events.delete(event) }
     end
 
     # Returns an array with the names of the modules not taken
     def ignored_names(ignored)
       modules = Config.read("modules") || []
-      ignored.map! { |i| modules[i] || "" }
+      ignored.map { |i| modules[i] || "" }
     end
 
     # Returns true if a given event should be ignored, that is if
@@ -161,15 +163,15 @@ module Timetable
 
     # Returns true if @course_id is a single-year course
     def masters_course?
-      Config.read("course_ids")[course].count == 1
+      Config.read("course_ids")[@course].count == 1
     end
 
     def course_name
-      Config.read("courses")[course] || ""
+      Config.read("courses")[@course] || ""
     end
 
     def course_id
-      ids = Config.read("course_ids")[course]
+      ids = Config.read("course_ids")[@course]
       return if ids.nil?
       ids[@course_year]
     end

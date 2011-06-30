@@ -1,11 +1,6 @@
 require 'spec_helper'
 
 describe Timetable::ParserDelegate do
-  def sample_data(filename)
-    filepath = File.join(File.dirname(__FILE__), "data/#{filename}")
-    File.read(filepath)
-  end
-
   let(:calendar) { double('calendar').as_null_object }
   let(:delegate) { Timetable::ParserDelegate.new(calendar) }
   let(:parser) { Timetable::Parser.new(delegate) }

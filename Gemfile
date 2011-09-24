@@ -11,6 +11,7 @@ gem "mongo"
 gem "sinatra", "~> 1.2.2"
 gem "shotgun"
 gem "rack", "~> 1.2.2"
+gem "rake"
 
 group :test do
   gem 'rspec'

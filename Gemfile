@@ -13,6 +13,10 @@ gem "shotgun"
 gem "rack", "~> 1.2.2"
 gem "rake"
 
+group :development do
+  gem "heroku"
+end
+
 group :test do
   gem 'rspec'
 end

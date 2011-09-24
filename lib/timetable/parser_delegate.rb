@@ -12,6 +12,8 @@ module Timetable
       "Wks" => ''
     }
 
+    EVENT_TYPE_PATTERNS = EVENT_TYPES.merge({ "TUT" => "Tutor" })
+
     def initialize(calendar)
       @calendar = calendar
       @events = []
@@ -63,11 +65,17 @@ module Timetable
 
     def format_summary(data)
       summary = data[:name]
-      type = EVENT_TYPES[data[:type]] or ''
+      type = event_type(summary, data[:type])
+      type ? summary + " (#{type})" : summary
+    end
+
+    def event_type(summary, type)
+      pattern = EVENT_TYPE_PATTERNS[type]
       # Only add the non-empty event type if it's not contained in the
       # summary already - e.g. "Laboratory I", not "Laboratory I (Lab)"
-      summary += " (#{type})" unless type.empty? || summary.include?(type)
-      summary
+      unless summary =~ /#{pattern}/i
+        EVENT_TYPES[type]
+      end
     end
 
     def format_attendees(data)

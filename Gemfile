@@ -14,6 +14,7 @@ gem "rack", "~> 1.2.2"
 gem "rake"
 
 group :development do
+  gem "capistrano"
   gem "heroku"
 end
 

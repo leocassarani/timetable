@@ -71,8 +71,8 @@ module Timetable
 
     def event_type(summary, type)
       pattern = EVENT_TYPE_PATTERNS[type]
-      # Only add the non-empty event type if it's not contained in the
-      # summary already - e.g. "Laboratory I", not "Laboratory I (Lab)"
+      # Only append the event type if it's not contained in the summary
+      # already - e.g. "Laboratory I", not "Laboratory I (Lab)"
       unless summary =~ /#{pattern}/i
         EVENT_TYPES[type]
       end

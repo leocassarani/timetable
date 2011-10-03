@@ -24,9 +24,7 @@ describe Timetable::ParserDelegate do
 
     it "produces a correct list of rooms for all types of locations" do
       parser.parse(data)
-      events = delegate.events
-
-      events.sort { |a, b| a.start <=> b.start }
+      events = delegate.events.sort { |a, b| a.start <=> b.start }
       locations = events.map(&:location)
 
       empty, textual, numeric_single, numeric_multiple, mix = locations

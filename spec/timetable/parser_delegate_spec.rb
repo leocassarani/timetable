@@ -155,11 +155,12 @@ describe Timetable::ParserDelegate do
 
     it "doesn't append the event type to the summary if it's already contained within it" do
       events = delegate.events.sort { |a, b| a.start <=> b.start }
-      lecture, lab, tutorial = events[3, 3]
+      lecture, lab, tutor, tutoring = events[3, 4]
 
       lecture.summary.should == "Introductory Lecture"
       lab.summary.should == "Laboratory I"
-      tutorial.summary.should == "Meet your Tutor Week"
+      tutor.summary.should == "Meet your Tutor Week"
+      tutoring.summary.should == "Personal Mathematical Tutoring"
     end
   end
 

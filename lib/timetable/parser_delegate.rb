@@ -12,7 +12,10 @@ module Timetable
       "Wks" => ''
     }
 
-    EVENT_TYPE_PATTERNS = EVENT_TYPES.merge({ "TUT" => "Tutor" })
+    EVENT_TYPE_PATTERNS = EVENT_TYPES.merge("TUT" => "Tutor")
+
+    DAY_START = 9
+    DAY_END = 18
 
     def initialize(calendar)
       @calendar = calendar
@@ -34,20 +37,13 @@ module Timetable
         week = week.to_i
         next unless @week_range.include?(week)
 
-        start_date = @week_start.advance(
-          :weeks => week - @week_range.begin,
-          :days => data[:day],
-          :hours => data[:time]
-        )
-
         event = Icalendar::Event.new
         event.uid = "DOC-#{@uid}"
         @uid += 1
 
         event.tzid = "Europe/London"
-        event.start = start_date
-        # For now assume every event ends after an hour
-        event.end = event.start.advance(:hours => 1)
+        event.start = event_start_date(week, data)
+        event.end = event_end_date(event, data)
 
         event.summary = format_summary(data)
         event.description = format_attendees(data)
@@ -62,6 +58,32 @@ module Timetable
     end
 
   private
+
+    def event_start_date(week, data)
+      start_date = @week_start.advance(
+        :weeks => week - @week_range.begin,
+        :days => data[:day],
+        :hours => data[:time]
+      )
+      if all_day_event?(data)
+        start_date.change(:hour => DAY_START)
+      else
+        start_date
+      end
+    end
+
+    def event_end_date(event, data)
+      if all_day_event?(data)
+        event.start.change(:hour => DAY_END)
+      else
+        # Events span 1-hour timeslots by default but may get merged later
+        event.start.advance(:hours => 1)
+      end
+    end
+
+    def all_day_event?(data)
+      data[:name] =~ /\ball day\b/i
+    end
 
     def format_summary(data)
       summary = data[:name]

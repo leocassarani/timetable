@@ -139,6 +139,20 @@ describe Timetable::ParserDelegate do
       delegate.events.should have(5).events
     end
   end
+
+  context "given an event with 'all day' in the title" do
+    let(:data) { load_fixture("all_day.html") }
+    before :each do
+      parser.parse(data)
+    end
+
+    it "creates an event that runs from 9am to 6pm on the day" do
+      event = delegate.events.first
+      event.start.hour.should == 9
+      event.end.hour.should == 18
+      event.start.to_date.should == event.end.to_date
+    end
+  end
 end
 
 describe "String monkey patches" do

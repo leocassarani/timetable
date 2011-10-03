@@ -15,7 +15,6 @@ gem "rake"
 
 group :development do
   gem "capistrano"
-  gem "heroku"
 end
 
 group :test do

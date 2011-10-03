@@ -16,7 +16,7 @@ describe Timetable::Parser do
     end
 
     context "given an empty timetable" do
-      let(:timetable) { sample_data("empty.html") }
+      let(:timetable) { load_fixture("empty.html") }
 
       it "parses weeks range and dates then terminates" do
         delegate.should_receive(:parsing_began).ordered
@@ -30,7 +30,7 @@ describe Timetable::Parser do
     end
 
     context "given a single-week range" do
-      let(:timetable) { sample_data("1_1_1.html") }
+      let(:timetable) { load_fixture("1_1_1.html") }
 
       it "parses it correctly" do
         delegate.should_receive(:process_week_range).with(1..1)
@@ -39,7 +39,7 @@ describe Timetable::Parser do
     end
 
     context "given a multiple-week range" do
-      let(:timetable) { sample_data("1_2_11.html") }
+      let(:timetable) { load_fixture("1_2_11.html") }
 
       it "parses it correctly" do
         delegate.should_receive(:process_week_range).with(2..11)
@@ -48,7 +48,7 @@ describe Timetable::Parser do
     end
 
     it "parses week start dates correctly" do
-      timetable = sample_data("1_1_1.html")
+      timetable = load_fixture("1_1_1.html")
       week_start = DateTime.civil(2010, 10, 4)
       delegate.should_receive(:process_week_start).with(week_start)
 
@@ -56,7 +56,7 @@ describe Timetable::Parser do
     end
 
     context "given a timetable with a single event" do
-      let(:timetable) { sample_data("single.html") }
+      let(:timetable) { load_fixture("single.html") }
 
       it "calls process_event once with the event data" do
         event = {
@@ -74,7 +74,7 @@ describe Timetable::Parser do
     end
 
     context "given a timetable with a single repeating event" do
-      let(:timetable) { sample_data("single_repeating.html") }
+      let(:timetable) { load_fixture("single_repeating.html") }
 
       it "calls process_event once with the event data" do
         event = {
@@ -92,7 +92,7 @@ describe Timetable::Parser do
     end
 
     context "given two events in the same timeslot" do
-      let(:timetable) { sample_data("multiline.html") }
+      let(:timetable) { load_fixture("multiline.html") }
 
       it "calls process_event twice with different data" do
         first = {
@@ -117,7 +117,7 @@ describe Timetable::Parser do
     end
 
     context "given the same event spanning consecutive timeslots" do
-      let(:timetable) { sample_data("multislot.html") }
+      let(:timetable) { load_fixture("multislot.html") }
 
       it "calls process_event twice with a different timeslot value" do
         first = {
@@ -137,7 +137,7 @@ describe Timetable::Parser do
     end
 
     context "given two unrelated events" do
-      let(:timetable) { sample_data("two_events.html") }
+      let(:timetable) { load_fixture("two_events.html") }
 
       it "calls process_event twice with the correct data" do
         first = {
@@ -165,7 +165,7 @@ describe Timetable::Parser do
     end
 
     it "parses multiple attendees and locations correctly" do
-      timetable = sample_data("multiple_attendees_locations.html")
+      timetable = load_fixture("multiple_attendees_locations.html")
       event = {
         :attendees => ["ajf", "tora"],
         :locations => ["344", "343", "219"]
@@ -175,7 +175,7 @@ describe Timetable::Parser do
     end
 
     it "parses events with no attendees or locations correctly" do
-      timetable = sample_data("no_attendees_locations.html")
+      timetable = load_fixture("no_attendees_locations.html")
       event = {
         :attendees => [],
         :locations => []

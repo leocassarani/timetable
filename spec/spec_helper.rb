@@ -7,8 +7,8 @@ RSpec.configure do |config|
   config.mock_with :rspec
 end
 
-def sample_data(filename)
-  filepath = "timetable/samples/#{filename}"
-  filepath = File.join(File.dirname(__FILE__), filepath)
-  File.read(filepath)
+def load_fixture(filename)
+  path = "timetable/fixtures/#{filename}"
+  path = File.join(File.dirname(__FILE__), path)
+  File.read(path)
 end

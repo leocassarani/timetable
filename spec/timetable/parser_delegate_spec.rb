@@ -8,19 +8,19 @@ describe Timetable::ParserDelegate do
   it "can parse several different files" do
     calendar.should_receive(:parsing_ended).twice
     # single has 1 event, multiline has 2
-    parser.parse(sample_data("single.html"))    
-    parser.parse(sample_data("multiline.html"))
+    parser.parse(load_fixture("single.html"))    
+    parser.parse(load_fixture("multiline.html"))
     delegate.events.should have(3).events
   end
 
   it "returns an empty array given an empty timetable" do
     calendar.should_receive(:parsing_ended)
-    parser.parse(sample_data("empty.html"))
+    parser.parse(load_fixture("empty.html"))
     delegate.events.should be_empty
   end
 
   context "given all possible inputs for the 'location' field" do
-    let(:data) { sample_data("rooms.html") }
+    let(:data) { load_fixture("rooms.html") }
 
     it "produces a correct list of rooms for all types of locations" do
       parser.parse(data)
@@ -39,7 +39,7 @@ describe Timetable::ParserDelegate do
   end
 
   context "given a single event" do
-    let(:data) { sample_data("single.html") }
+    let(:data) { load_fixture("single.html") }
     before :each do
       parser.parse(data)
     end
@@ -60,7 +60,7 @@ describe Timetable::ParserDelegate do
   end
 
   context "given a single event that occurs five times" do
-    let(:data) { sample_data("single_repeating.html") }
+    let(:data) { load_fixture("single_repeating.html") }
     before :each do
       parser.parse(data)
     end
@@ -97,7 +97,7 @@ describe Timetable::ParserDelegate do
   end
 
   context "given two events in the same timeslot" do
-    let(:data) { sample_data("multiline.html") }
+    let(:data) { load_fixture("multiline.html") }
     before :each do
       parser.parse(data)
     end
@@ -114,7 +114,7 @@ describe Timetable::ParserDelegate do
   end
 
   context "given an event spanning two consecutive timeslots" do
-    let(:data) { sample_data("multislot.html") }
+    let(:data) { load_fixture("multislot.html") }
     before :each do
       parser.parse(data)
     end
@@ -130,7 +130,7 @@ describe Timetable::ParserDelegate do
   end
 
   context "given a repeating event that exceeds the range of the calendar" do
-    let(:data) { sample_data("out_of_range.html") }
+    let(:data) { load_fixture("out_of_range.html") }
     before :each do
       parser.parse(data)
     end

@@ -138,6 +138,31 @@ describe Timetable::ParserDelegate do
     end
   end
 
+  context "given events of different types" do
+    let(:data) { load_fixture("event_types.html") }
+    before :each do
+      parser.parse(data)
+    end
+
+    it "appends the event type to the summary" do
+      events = delegate.events.sort { |a, b| a.start <=> b.start }
+      lecture, lab, tutorial = events[0, 3]
+
+      lecture.summary.should == "Programming (Lecture)"
+      lab.summary.should == "Logic (Lab)"
+      tutorial.summary.should == "Hardware (Tutorial)"
+    end
+
+    it "doesn't append the event type to the summary if it's already contained within it" do
+      events = delegate.events.sort { |a, b| a.start <=> b.start }
+      lecture, lab, tutorial = events[3, 3]
+
+      lecture.summary.should == "Introductory Lecture"
+      lab.summary.should == "Laboratory I"
+      tutorial.summary.should == "Meet your Tutor Week"
+    end
+  end
+
   context "given an event with 'all day' in the title" do
     let(:data) { load_fixture("all_day.html") }
     before :each do

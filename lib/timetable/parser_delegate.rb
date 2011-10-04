@@ -1,21 +1,8 @@
 require 'active_support/core_ext'
-require 'icalendar'
 
 module Timetable
   class ParserDelegate
     attr_reader :events
-
-    EVENT_TYPES = {
-      "LEC" => "Lecture",
-      "LAB" => "Lab",
-      "TUT" => "Tutorial",
-      "Wks" => ''
-    }
-
-    EVENT_TYPE_PATTERNS = EVENT_TYPES.merge("TUT" => "Tutor")
-
-    DAY_START = 9
-    DAY_END = 18
 
     def initialize(calendar)
       @calendar = calendar
@@ -37,19 +24,10 @@ module Timetable
         week = week.to_i
         next unless @week_range.include?(week)
 
-        event = Icalendar::Event.new
+        event = Event.new(data, week, @week_start, @week_range)
         event.uid = "DOC-#{@uid}"
         @uid += 1
-
-        event.tzid = "Europe/London"
-        event.start = event_start_date(week, data)
-        event.end = event_end_date(event, data)
-
-        event.summary = format_summary(data)
-        event.description = format_attendees(data)
-        event.location = format_location(data)
-
-        attempt_merge(event, week, data[:day], data[:time])
+        attempt_merge(event.to_icalendar, week, data[:day], data[:time])
       end
     end
 
@@ -58,68 +36,6 @@ module Timetable
     end
 
   private
-
-    def event_start_date(week, data)
-      start_date = @week_start.advance(
-        :weeks => week - @week_range.begin,
-        :days => data[:day],
-        :hours => data[:time]
-      )
-      if all_day_event?(data)
-        start_date.change(:hour => DAY_START)
-      else
-        start_date
-      end
-    end
-
-    def event_end_date(event, data)
-      if all_day_event?(data)
-        event.start.change(:hour => DAY_END)
-      else
-        # Events span 1-hour timeslots by default but may get merged later
-        event.start.advance(:hours => 1)
-      end
-    end
-
-    def all_day_event?(data)
-      data[:name] =~ /\ball day\b/i
-    end
-
-    def format_summary(data)
-      summary = data[:name]
-      type = event_type(summary, data[:type])
-      type ? summary + " (#{type})" : summary
-    end
-
-    def event_type(summary, type)
-      pattern = EVENT_TYPE_PATTERNS[type]
-      # Only append the event type if it's not contained in the summary
-      # already - e.g. "Laboratory I", not "Laboratory I (Lab)"
-      unless summary =~ /#{pattern}/i
-        EVENT_TYPES[type]
-      end
-    end
-
-    def format_attendees(data)
-      data[:attendees].join(', ')
-    end
-
-    def format_location(data)
-      locations = data[:locations]
-      return "" if locations.nil? || locations.empty?
-
-      # If all the room names are numeric, then append "Room(s)"
-      # to the beginning of the list
-      if locations.all?(&:integer?)
-        prefix = String.pluralize(locations.count, "Room") + ' '
-      else
-        # Otherwise, add "Room" in front of the numeric room names
-        # and keep the non-numeric ones unaltered
-        locations.map! { |loc| loc.integer? ? "Room #{loc}" : loc }
-      end
-
-      (prefix or '') + locations.join(', ')
-    end
 
     # Attempts to merge an event with the previously occurring one,
     # as in the case of a 2+ hour lecture
@@ -158,23 +74,8 @@ module Timetable
     def previous_events(event)
       # Initialise the hash to use an empty array as default value
       @dups ||= Hash.new { |h, k| h[k] = [] }
-      an_hour_earlier = event.start.advance(:hours => -1)
-      @dups[an_hour_earlier]
+      one_hour_earlier = event.start.advance(:hours => -1)
+      @dups[one_hour_earlier]
     end
-  end
-end
-
-class String
-  # True if the string is an integer unsigned number, e.g.
-  # "123" is true, but "-123", "+123" and "bacon" are not
-  def integer?
-    match(/\A\d+\Z/)
-  end
-
-  # Returns either the singular or the plural of a given
-  # word, depending on the value of count
-  def self.pluralize(count, singular, plural = nil)
-    plural ||= "#{singular.strip}s"
-    count == 1 ? singular : plural
   end
 end

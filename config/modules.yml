@@ -56,6 +56,34 @@ modules:
   M3N4:   Computational Linear Algebra
   M3N7:   Numerical Solution of Ordinary Differential Equations
   M3N10:  Computational Partial Differential Equations I
+  M3P5:   Geometry of Curves and Surfaces
+  M3P20:  "Geometry I: Algebraic Curves"
+  M3P21:  "Geometry II: Algebraic Topology"
+  M3P8:   Algebra III
+  M3P10:  Group Theory
+  M3P11:  Galois Theory
+  M3P12:  Group Representation Theory
+  M3P17:  Algebraic Combinatorics
+  M3P22:  Enumerative Combinatorics
+  M3P14:  Elementary Number Theory
+  M3P15:  Algebraic Number Theory
+  M3P16:  Analytic Number Theory
+  M2S1:   Probability and Statistics II
+  M2S2:   Statistical Modelling I
+  M3S1:   Statistical Theory I
+  M3S2:   Statistical Modelling II
+  M3S3:   Statistical Theory II
+  M3S4:   Applied Probability
+  M3S7:   Statistical Pattern Recognition
+  M3S8:   Time Series
+  M3S9:   Stochastic Simulation
+  M3S10:  Design of Experiments and Surveys
+  M3S11:  "Games, Risks and Decisions"
+  M3S12:  Biostatistics
+  M3S14:  Survival Models and Actuarial Applications
+  M3S15:  Monte Carlo Methods in Financial Engineering
+  M3S16:  Credit Scoring
+  M3T:    Communicating Mathematics
 
 course_modules:
   comp:

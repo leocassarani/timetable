@@ -87,7 +87,14 @@ module Icalendar
       hash.each do |key, value|
         event.send("#{key}=".to_sym, value)
       end
+      event.set_timezone("Europe/London")
+
       event
+    end
+
+    def set_timezone(tzid)
+      dtstart.ical_params = { "TZID" => tzid }
+      dtend.ical_params = { "TZID" => tzid }
     end
   end
 end

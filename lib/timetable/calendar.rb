@@ -133,6 +133,8 @@ module Timetable
           add_recurrence_rule "FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU"
         end
       end
+
+      @cal.custom_property("X-WR-TIMEZONE", "Europe/London")
     end
 
     # Filter the events and add them to the output Icalendar object.

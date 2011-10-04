@@ -21,9 +21,9 @@ module Timetable
 
       @event = Icalendar::Event.new
 
-      event.tzid = "Europe/London"
       event.start = event_start_date(data[:day], data[:time], week)
       event.end = event_end_date
+      set_event_timezone
 
       event.summary = format_summary(data[:name], data[:type])
       event.description = format_attendees(data[:attendees])
@@ -64,6 +64,12 @@ module Timetable
 
     def all_day?
       data[:name] =~ /\ball day\b/i
+    end
+
+    def set_event_timezone
+      event.tzid = "Europe/London"
+      event.dtstart.ical_params = { "TZID" => event.tzid }
+      event.dtend.ical_params = { "TZID" => event.tzid }
     end
 
     def format_summary(name, type)

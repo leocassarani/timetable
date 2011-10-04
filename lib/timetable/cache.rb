@@ -92,9 +92,10 @@ module Icalendar
       event
     end
 
-    def set_timezone(tzid)
-      dtstart.ical_params = { "TZID" => tzid }
-      dtend.ical_params = { "TZID" => tzid }
+    def set_timezone(timezone)
+      tzid = timezone
+      dtstart.ical_params = { "TZID" => timezone }
+      dtend.ical_params = { "TZID" => timezone }
     end
   end
 end

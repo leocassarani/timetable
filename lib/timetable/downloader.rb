@@ -2,7 +2,7 @@ require 'open-uri'
 
 module Timetable
   REMOTE_HOST = "www.doc.ic.ac.uk"
-  REMOTE_PATH = "internal/timetables/timetable/:season/class"
+  REMOTE_PATH = "internal/timetables/:season/class"
   REMOTE_FILE = ":course_:start_:end.htm"
 
   class Downloader

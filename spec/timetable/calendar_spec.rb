@@ -38,7 +38,7 @@ describe Timetable::Calendar do
     end
   end
 
-  context "excluding ignored modules" do
+  describe "excluding ignored modules" do
     let(:course) { "comp" }
     let(:year) { 2 }
     let(:yoe) do
@@ -54,7 +54,7 @@ describe Timetable::Calendar do
       it "returns a calendar containing events relating to those modules" do
         calendar.cal.events.any? do |event|
           names.any? do |name|
-            event.summary =~ /^#{name}/i
+            event.summary =~ /#{name}/i
           end
         end.should be_true
       end
@@ -66,7 +66,7 @@ describe Timetable::Calendar do
       it "returns a calendar with no events relating to those modules" do
         calendar.cal.events.each do |event|
           names.each do |name|
-            event.summary.should_not match(/^#{name}/i)
+            event.summary.should_not match(/#{name}/i)
           end
         end
       end

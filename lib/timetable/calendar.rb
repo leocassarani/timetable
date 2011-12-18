@@ -155,7 +155,7 @@ module Timetable
     # its #summary string attribute starts with the name of one of
     # the modules the user isn't taking
     def should_ignore(event)
-      @ignored.any? { |ign| event.summary =~ /^#{ign}/i }
+      @ignored.any? { |ign| event.summary =~ /#{ign}/i }
     end
 
     # Return true if @course_id is a single-year course

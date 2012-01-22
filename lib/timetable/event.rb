@@ -92,6 +92,10 @@ module Timetable
     end
 
     def format_location(locations)
+      # Sometimes when there is no room, the location is set to '0'
+      # which we ignore completely
+      locations = locations.reject { |loc| loc.strip == '0' }
+
       return "" if locations.nil? || locations.empty?
 
       # If all the room names are numeric, then append "Room(s)"

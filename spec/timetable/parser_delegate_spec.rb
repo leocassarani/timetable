@@ -8,7 +8,7 @@ describe Timetable::ParserDelegate do
   it "can parse several different files" do
     calendar.should_receive(:parsing_ended).twice
     # single has 1 event, multiline has 2
-    parser.parse(load_fixture("single.html"))    
+    parser.parse(load_fixture("single.html"))
     parser.parse(load_fixture("multiline.html"))
     delegate.events.should have(3).events
   end
@@ -27,12 +27,13 @@ describe Timetable::ParserDelegate do
       events = delegate.events.sort { |a, b| a.start <=> b.start }
       locations = events.map(&:location)
 
-      empty, textual, numeric_single, numeric_multiple, mix = locations
+      empty, textual, numeric_single, numeric_multiple, mix, zero = locations
       empty.should be_empty
       textual.should == "G16 Sir Alexander Flemming Bldg"
       numeric_single.should == "Room 308"
       numeric_multiple.should == "Rooms 308, 343, 344"
       mix.should == "Clore Lecture Theatre, Room 343"
+      zero.should be_empty
     end
   end
 

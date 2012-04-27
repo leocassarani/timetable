@@ -43,7 +43,8 @@ module Timetable
       # If the preset doesn't exist (e.g. because the user took all the
       # modules), then give them a default url of the form course/yoe
       name = preset.name || "#{params[:course]}/#{params[:yoe]}"
-      host = ENV.fetch('TIMETABLE_HOST', "localhost:9393")
+      host = request.host
+      host += ":9393" if host == "localhost"
       @url = "webcal://#{host}/#{name}"
 
       @lightbox = true

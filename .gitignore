@@ -1,3 +1,4 @@
 .DS_Store
 .rvmrc
 config/deploy.rb
+config/database.yml

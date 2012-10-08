@@ -34,6 +34,7 @@ modules:
   "436":  Performance Analysis
   "437":  Distributed Algorithms
   "438":  Complexity
+  "440":  Software Reliability
   "470":  Program Analysis
   "471":  Advanced Issues in Object Oriented Programming
   "474":  Multi-agent Systems
@@ -93,7 +94,7 @@ course_modules:
       - "223"
       - "231"
       - "233"
-    
+
     3:
       - "312"
       - "317"
@@ -111,7 +112,7 @@ course_modules:
       - "348"
       - "382"
       - "395"
-    
+
     4:
       - "417"
       - "418"
@@ -122,6 +123,7 @@ course_modules:
       - "436"
       - "437"
       - "438"
+      - "440"
       - "470"
       - "471"
       - "474"
@@ -133,8 +135,8 @@ course_modules:
       - "491"
       - "493"
       - "499"
-    
-  
+
+
   jmc:
     1:  []
     2:
@@ -146,7 +148,7 @@ course_modules:
       - "526"
       - M2PM5
       - M2AA1
-    
+
     3:
       - "221"
       - "317"
@@ -198,7 +200,7 @@ course_modules:
       - M3S15
       - M3S16
       - M3T
-    
+
     4:
       - "312"
       - "317"
@@ -213,6 +215,7 @@ course_modules:
       - "436"
       - "437"
       - "438"
+      - "440"
       - "470"
       - "471"
       - "474"
@@ -224,5 +227,5 @@ course_modules:
       - "491"
       - "493"
       - "499"
-    
-  
+
+

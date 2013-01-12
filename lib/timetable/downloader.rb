@@ -33,7 +33,7 @@ module Timetable
     def remote_url
       return if course_id.nil? || season.nil? || weeks.nil?
 
-      result = "http://#{REMOTE_HOST}/#{REMOTE_PATH}/#{REMOTE_FILE}"
+      result = "http://" + [REMOTE_HOST, REMOTE_PATH, REMOTE_FILE].join('/')
       result.gsub!(':season', season.to_s)
       result.gsub!(':course', course_id.to_s)
       result.gsub!(':start', weeks.first.to_s)

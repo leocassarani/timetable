@@ -2,7 +2,7 @@ require 'icalendar'
 
 module Timetable
   class Calendar
-    include TimeHelper
+    include TimeHelpers
 
     attr_reader :cal
 

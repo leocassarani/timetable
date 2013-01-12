@@ -1,5 +1,5 @@
 module Timetable
-  module TimeHelper
+  module TimeHelpers
     # Return true if it's not August yet.
     #
     # @return [Boolean] A boolean value representing whether we're currently

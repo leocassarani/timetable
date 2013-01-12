@@ -4,7 +4,7 @@ require 'json'
 
 module Timetable
   class Application < Sinatra::Base
-    include TimeHelper
+    include TimeHelpers
 
     # Set the parent directory of this file as the project root
     set :root, File.dirname(File.dirname(File.dirname(__FILE__)))

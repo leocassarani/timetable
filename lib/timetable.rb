@@ -1,4 +1,4 @@
-require 'timetable/time_helper'
+require 'timetable/time_helpers'
 require 'timetable/application'
 require 'timetable/cache'
 require 'timetable/calendar'

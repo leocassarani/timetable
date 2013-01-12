@@ -42,7 +42,7 @@ describe Timetable::Calendar do
     let(:course) { "comp" }
     let(:year) { 2 }
     let(:yoe) do
-      helper = Object.new.extend(Timetable::TimeHelper)
+      helper = Object.new.extend(Timetable::TimeHelpers)
       helper.valid_years.to_a[-year]
     end
     let(:modules) { Timetable::Config.read("course_modules")[course][year] }

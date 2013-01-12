@@ -4,7 +4,7 @@ Timetable is a web-based scraper for the [Imperial College](http://www.imperial.
 
 ## The problem
 
-The Department of Computing at Imperial College London only publish their timetables as a series of HTML tables where every cell represent an hour-long slot (see [example](http://www.doc.ic.ac.uk/internal/timetables/timetable/autumn/class/3_2_11.htm)). Not wanting to miss any lectures because of their convoluted format, I wanted to import all the events into iCal (or equivalent calendar software) for easy and quick access.
+The Department of Computing at Imperial College London only publish their timetables as a series of HTML tables where every cell represent an hour-long slot (see [example](http://www.doc.ic.ac.uk/internal/timetables/autumn/class/3_2_11.htm)). Not wanting to miss any lectures because of their convoluted format, I wanted to import all the events into iCal (or equivalent calendar software) for easy and quick access.
 
 ## The solution
 
@@ -22,4 +22,4 @@ Users without a preset (no modules excluded) can access their timetable directly
 
 ## Copyright
 
-Copyright (c) 2011 Leo Cassarani. See LICENSE for details.
+Copyright (c) 2013 Leo Cassarani. See LICENSE for details.

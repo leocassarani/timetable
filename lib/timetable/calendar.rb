@@ -19,6 +19,7 @@ module Timetable
       @yoe = yoe.to_i
       @ignored = ignored_names(ignored)
 
+      @academic_year = academic_year
       @course_year = course_year(yoe)
       @course_id = course_id
 
@@ -61,7 +62,7 @@ module Timetable
       # and week ranges we need to process
       Config.read("seasons").each do |season|
         Config.read("week_ranges").each do |weeks|
-          data = download(season, weeks)
+          data = download(academic_year, season, weeks)
           parse(data)
         end
       end
@@ -78,8 +79,8 @@ module Timetable
       @parser.parse(data)
     end
 
-    def download(season, weeks)
-      downloader = Downloader.new(@course_id, season, weeks)
+    def download(year, season, weeks)
+      downloader = Downloader.new(@course_id, year, season, weeks)
       downloader.download
     end
 

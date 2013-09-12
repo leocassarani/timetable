@@ -12,6 +12,7 @@ describe Timetable::Downloader do
   context "given missing input" do
     before :each do
       downloader.course_id = nil
+      downloader.year = 2013
       downloader.season = "autumn"
       downloader.weeks = 1..1
     end
@@ -24,6 +25,7 @@ describe Timetable::Downloader do
   context "given valid input" do
     before :each do
       downloader.course_id = 1
+      downloader.year = 2013
       downloader.season = "autumn"
       downloader.weeks = 1..1
     end
@@ -37,6 +39,7 @@ describe Timetable::Downloader do
   context "given two successive inputs" do
     before :each do
       downloader.course_id = 1
+      downloader.year = 2013
       downloader.weeks = 1..1
     end
 

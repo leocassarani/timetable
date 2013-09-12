@@ -1,4 +1,4 @@
-source :rubygems
+source 'https://rubygems.org'
 
 gem "activesupport", :require => "active_support/core_ext"
 gem "bson_ext" # Needed for optimum MongoDB performance

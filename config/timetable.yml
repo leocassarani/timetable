@@ -46,4 +46,5 @@ seasons:
 
 week_ranges:
   - !ruby/range 1..1
-  - !ruby/range 2..11
+  - !ruby/range 2..10
+  - !ruby/range 11..11

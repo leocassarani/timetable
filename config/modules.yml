@@ -43,6 +43,7 @@ modules:
   "484":  Quantum Computing
   "491":  Knowledge Representation
   "493":  Intelligent Data and Probabilistic Inference
+  "495":  Advanced Statistical Machine Learning and Pattern Recognition
   "499":  Modal and Temporal Logic
   "526":  Databases
   "527":  Computer Networks and Distributed Systems
@@ -133,6 +134,7 @@ course_modules:
       - "484"
       - "491"
       - "493"
+      - "495"
       - "499"
 
 
@@ -226,6 +228,7 @@ course_modules:
       - "484"
       - "491"
       - "493"
+      - "495"
       - "499"
 
 
